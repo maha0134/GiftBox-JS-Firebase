@@ -93,14 +93,16 @@ ul {
   font-weight: 100;
   color: #777;
 }
-
+.person.active {
+  background-color: pink;
+}
 .idea-list li.idea {
   border: 1px solid #222;
   border-radius: var(--radii);
   margin: 1rem 0;
   display: grid;
   /*usenamedgridareas*/
-  grid-template-areas: 'tab top' 'tab bottom';
+  grid-template-areas: "tab top" "tab bottom";
   grid-template-columns: 1fr 4fr;
   background-color: var(--very-light-orange);
   -webkit-border-radius: var(--radii);
@@ -117,10 +119,10 @@ ul {
   grid-area: tab;
   align-self: center;
 }
-.idea-list .idea label:has(input[type='checkbox']:checked) {
+.idea-list .idea label:has(input[type="checkbox"]:checked) {
   color: #555;
 }
-.idea-list .idea [type='checkbox'] {
+.idea-list .idea [type="checkbox"] {
   accent-color: var(--light-orange);
 }
 .idea-list p.title {
