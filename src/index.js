@@ -68,7 +68,12 @@ async function getPeople() {
   });
   if (people.length > 0) {
     buildPeople(people);
+    //highlights first person
     getIdeas(people[0].id);
+  } else {
+    const ul = document.querySelector("ul.person-list");
+    ul.innerHTML = "";
+    ul.innerHTML = `<p class="empty">Oops! Looks like there are no people added</p>`;
   }
 }
 
@@ -92,7 +97,7 @@ function buildPeople(people) {
   ];
   let index = 0;
   //replace the old ul contents with the new.
-
+  ul.innerHTML = "";
   ul.innerHTML = people
     .map((person) => {
       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
@@ -135,7 +140,7 @@ async function getIdeas(id) {
       <p class="location">${gift.location}</p>`;
     });
   } else {
-    ul.innerHTML = `<p class="error">Oops! Looks like there are no gifts added for the selected person</p>`;
+    ul.innerHTML = `<p class="empty">Oops! Looks like there are no gifts added for the selected person</p>`;
   }
 }
 
