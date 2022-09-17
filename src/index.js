@@ -75,6 +75,7 @@ async function getPeople() {
 function buildPeople(people) {
   //build the HTML
   let ul = document.querySelector("ul.person-list");
+  ul.addEventListener("click", personClicked);
   let months = [
     "January",
     "February",
@@ -91,6 +92,7 @@ function buildPeople(people) {
   ];
   let index = 0;
   //replace the old ul contents with the new.
+
   ul.innerHTML = people
     .map((person) => {
       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
@@ -125,11 +127,24 @@ async function getIdeas(id) {
     gifts.push({ id, ...data });
   });
   let ul = document.querySelector("ul.idea-list");
+  ul.innerHTML = "";
   if (gifts.length > 0) {
     ul.innerHTML = gifts.map((gift) => {
       return `<li class="idea" data-id = ${gift.id}><label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
       <p class="title">${gift.idea}</p>
       <p class="location">${gift.location}</p>`;
     });
+  } else {
+    ul.innerHTML = `<p class="error">Oops! Looks like there are no gifts added for the selected person</p>`;
+  }
+}
+
+function personClicked(ev) {
+  const clickedPerson = ev.target.closest("li");
+  if (clickedPerson) {
+    document.querySelector(".active").classList.remove("active");
+    clickedPerson.classList.add("active");
+    const id = clickedPerson.dataset.id;
+    getIdeas(id);
   }
 }
