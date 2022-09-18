@@ -3,6 +3,7 @@
   --light-orange: #ffcb2a;
   --very-light-orange: #ffeb9a;
   --radii: 0.4rem;
+  --color-accent: rgb(125, 236, 223);
 }
 * {
   box-sizing: border-box;
@@ -79,9 +80,7 @@ ul {
   padding: 0.5rem 2rem;
   cursor: pointer;
 }
-.person-list li.selected {
-  background-color: var(--light-orange);
-}
+
 .person-list p.name {
   font-size: 1.2rem;
   line-height: 2rem;
@@ -94,17 +93,28 @@ ul {
   color: #777;
 }
 .person.active {
-  background-color: pink;
+  background-color: var(--color-accent);
+}
+.person {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.person i,
+.idea i {
+  font-size: 40px;
+  color: red;
 }
 .idea-list li.idea {
   border: 1px solid #222;
   border-radius: var(--radii);
   margin: 1rem 0;
   display: grid;
+  align-items: center;
   /*usenamedgridareas*/
-  grid-template-areas: "tab top" "tab bottom";
-  grid-template-columns: 1fr 4fr;
-  background-color: var(--very-light-orange);
+  grid-template-areas: "tab top icon" "tab bottom icon";
+  grid-template-columns: 1fr 4fr 1fr;
+  background-color: var(--color-accent);
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
@@ -131,7 +141,6 @@ ul {
   padding: 0.5rem;
   color: #222;
   background-color: #fff;
-  border-top-right-radius: 0.3rem;
   grid-area: top;
 }
 .idea-list p.location {
@@ -141,10 +150,12 @@ ul {
   font-weight: 100;
   color: #555;
   background-color: #fff;
-  border-bottom-right-radius: 0.3rem;
   grid-area: bottom;
 }
-
+.idea-list i {
+  justify-self: center;
+  grid-area: icon;
+}
 section.overlay {
   position: absolute;
   top: 0;

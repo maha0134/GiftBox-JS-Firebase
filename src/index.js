@@ -107,13 +107,15 @@ function buildPeople(people) {
       if (index == 0) {
         index += 1;
         return `<li data-id="${person.id}" class="person active">
-                <p class="name">${person.name}</p>
-                <p class="dob">${dob}</p>
+                <div class="content"><p class="name">${person.name}</p>
+                <p class="dob">${dob}</p></div>
+                <i class="material-icons-outlined">delete</i>
               </li>`;
       }
       return `<li data-id="${person.id}" class="person">
-                <p class="name">${person.name}</p>
-                <p class="dob">${dob}</p>
+                <div class="content"><p class="name">${person.name}</p>
+                <p class="dob">${dob}</p></div>
+                <i class="material-icons-outlined">delete</i>
               </li>`;
     })
     .join("");
@@ -154,7 +156,9 @@ function buildIdeas(gifts) {
       .map((gift) => {
         return `<li class="idea" data-id = ${gift.id}><label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
       <p class="title">${gift.idea}</p>
-      <p class="location">${gift.location}</p>`;
+      <p class="location">${gift.location}</p>
+      <i class="material-icons-outlined">delete</i>
+      </li>`;
       })
       .join("");
   } else {
