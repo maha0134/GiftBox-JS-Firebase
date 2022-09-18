@@ -7,6 +7,7 @@ import {
   query,
   where,
   addDoc,
+  deleteDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -131,7 +132,10 @@ function buildPeople(people) {
 function personClicked(ev) {
   const clickedPerson = ev.target.closest("li");
   if (clickedPerson) {
-    document.querySelector(".person.active").classList.remove("active");
+    const activePerson = document.querySelector(".person.active");
+    if (activePerson) {
+      activePerson.classList.remove("active");
+    }
     clickedPerson.classList.add("active");
     const id = clickedPerson.dataset.id;
     getIdeas(id);
@@ -294,8 +298,33 @@ function showGift(giftIdea) {
 
 async function deletePerson(ev) {
   console.log("Ready to delete");
+  const personId = ev.target.parentElement.dataset.id;
+  try {
+    await deleteDoc(doc(db, "people", personId));
+    ev.target.parentElement.outerHTML = "";
+    const giftIdeas = document.querySelectorAll("ul.idea-list .idea");
+    deleteGiftsFromDB(giftIdeas);
+  } catch (err) {
+    console.log(err.message);
+  }
 }
 
 async function deleteGift(ev) {
   console.log("Delete a gift");
+}
+
+async function deleteGiftsFromDB(giftIdeas) {
+  document.querySelector(
+    "ul.idea-list"
+  ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+  try {
+    giftIdeas.forEach((gift) => {
+      const giftId = gift.dataset.id;
+      //skipping await as it needs to be in top level module
+      //better done with batch operations
+      deleteDoc(doc(db, "gift-ideas", giftId));
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
 }
