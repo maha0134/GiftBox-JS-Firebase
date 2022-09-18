@@ -38,8 +38,6 @@ let months = [
   "November",
   "December",
 ];
-const people = []; //to hold all the people from the collection
-const gifts = []; //to hold the giftIdeas
 
 document.addEventListener("DOMContentLoaded", () => {
   //set up the dom events
@@ -59,7 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("btnSavePerson")
     .addEventListener("click", savePerson);
-
+  document
+    .querySelector("ul.person-list")
+    .addEventListener("click", personClicked);
   getPeople();
 });
 
@@ -77,8 +77,7 @@ function showOverlay(ev) {
 }
 
 async function getPeople() {
-  //call this from DOMContentLoaded init function
-  //the db variable is the one created by the getFirestore(app) call.
+  const people = []; //to hold all the people from the collection
   const querySnapshot = await getDocs(collection(db, "people"));
   querySnapshot.forEach((doc) => {
     const data = doc.data();
@@ -99,7 +98,6 @@ async function getPeople() {
 function buildPeople(people) {
   //build the HTML
   let ul = document.querySelector("ul.person-list");
-  ul.addEventListener("click", personClicked);
   let index = 0;
   //replace the old ul contents with the new.
   ul.innerHTML = "";
@@ -121,10 +119,20 @@ function buildPeople(people) {
     .join("");
 }
 
+function personClicked(ev) {
+  const clickedPerson = ev.target.closest("li");
+  if (clickedPerson) {
+    document.querySelector(".person.active").classList.remove("active");
+    clickedPerson.classList.add("active");
+    const id = clickedPerson.dataset.id;
+    getIdeas(id);
+  }
+}
+
 async function getIdeas(id) {
   //get an actual reference to the person document
   const personRef = doc(collection(db, "people"), id);
-
+  const gifts = []; //to hold the giftIdeas
   //then run a query where the `person-id` property matches the reference for the person
   const docs = query(
     collection(db, "gift-ideas"),
@@ -136,26 +144,22 @@ async function getIdeas(id) {
     const id = doc.id;
     gifts.push({ id, ...data });
   });
+  buildIdeas(gifts);
+}
+function buildIdeas(gifts) {
   let ul = document.querySelector("ul.idea-list");
   ul.innerHTML = "";
   if (gifts.length > 0) {
-    ul.innerHTML = gifts.map((gift) => {
-      return `<li class="idea" id="" data-id = ${gift.id}><label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
+    ul.innerHTML = gifts
+      .map((gift) => {
+        return `<li class="idea" data-id = ${gift.id}><label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
       <p class="title">${gift.idea}</p>
       <p class="location">${gift.location}</p>`;
-    });
+      })
+      .join("");
   } else {
+    console.log;
     ul.innerHTML = `<p class="empty">Oops! Looks like there are no gifts added for the selected person</p>`;
-  }
-}
-
-function personClicked(ev) {
-  const clickedPerson = ev.target.closest("li");
-  if (clickedPerson) {
-    document.querySelector(".active").classList.remove("active");
-    clickedPerson.classList.add("active");
-    const id = clickedPerson.dataset.id;
-    getIdeas(id);
   }
 }
 
@@ -191,7 +195,7 @@ async function savePerson() {
   }
 }
 //TODO
-function tellUser() {}
+function tellUser(info) {}
 
 function showPerson(person) {
   let li = document.getElementById(person.id);
@@ -248,10 +252,31 @@ async function saveIdea() {
     tellUser(`Gift idea ${title} added to database`);
     // giftIdea.id = docRef.id;
     //4. ADD the new HTML to the <ul> using the new object
-    // showGift(giftIdea);
+    showGift(giftIdea);
   } catch (err) {
     console.error("Error adding document: ", err);
     //do you want to stay on the dialog?
     //display a mesage to the user about the problem
+  }
+}
+
+function showGift(giftIdea) {
+  const liData = `<li data-id=${giftIdea.id} class="idea">
+                    <label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
+                    <p class="title">${giftIdea.idea}</p>
+                    <p class="location">${giftIdea.location}</p>`;
+  const li = document.getElementById(giftIdea.id);
+  if (li) {
+    //update the gift Idea
+    li.outerHTML = liData;
+  } else {
+    //add the gift on screen
+    const ul = document.querySelector("ul.idea-list");
+    //
+    if (ul.firstElementChild.tagName === "P") {
+      ul.innerHTML = liData;
+    } else {
+      ul.innerHTML += liData;
+    }
   }
 }
