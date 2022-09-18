@@ -310,7 +310,18 @@ async function deletePerson(ev) {
 }
 
 async function deleteGift(ev) {
-  console.log("Delete a gift");
+  const giftId = ev.target.parentElement.dataset.id;
+  try {
+    await deleteDoc(doc(db, "gift-ideas", giftId));
+    ev.target.parentElement.outerHTML = "";
+    //If it is the only gift, call buildIdeas with no gifts
+    const checkIfOnlyGift = document.querySelector("ul.idea-list li");
+    if (!checkIfOnlyGift) {
+      buildIdeas([]);
+    }
+  } catch (err) {
+    console.log(err.message);
+  }
 }
 
 async function deleteGiftsFromDB(giftIdeas) {
