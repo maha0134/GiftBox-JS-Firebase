@@ -228,7 +228,7 @@ async function savePerson() {
     //display a mesage to the user about the problem
   }
 }
-//TODO
+
 function tellUser(info) {
   const confirmationScreen = document.querySelector(".confirm");
   confirmationScreen.classList.add("onscreen");
@@ -241,26 +241,23 @@ function tellUser(info) {
 
 function showPerson(person) {
   let li = document.getElementById(person.id);
+  const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
+  const liData = `<li data-id="${person.id}" class="person">
+            <div class="content"><p class="name">${person.name}</p>
+            <p class="dob">${dob}</p></div>
+            <i class="material-icons-outlined" id="btnDelete">delete</i>
+          </li>`;
   if (li) {
     //update on screen
-    const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
-    //Use the number of the birth-month less 1 as the index for the months array
-    //replace the existing li with this new HTML
-    li.outerHTML = `<li data-id="${person.id}" class="person">
-            <div class="content"><p class="name">${person.name}</p>
-            <p class="dob">${dob}</p></div>
-            <i class="material-icons-outlined" id="btnDelete">delete</i>
-          </li>`;
+    li.outerHTML = liData;
   } else {
     //add to screen
-    const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
-    //Use the number of the birth-month less 1 as the index for the months array
-    li = `<li data-id="${person.id}" class="person">
-            <div class="content"><p class="name">${person.name}</p>
-            <p class="dob">${dob}</p></div>
-            <i class="material-icons-outlined" id="btnDelete">delete</i>
-          </li>`;
-    document.querySelector("ul.person-list").innerHTML += li;
+    const ul = document.querySelector("ul.person-list");
+    if (ul.firstElementChild.tagName === "P") {
+      ul.innerHTML = liData;
+    } else {
+      ul.innerHTML += liData;
+    }
   }
 }
 
@@ -331,9 +328,17 @@ async function deletePerson() {
   const personId = li.dataset.id;
   try {
     await deleteDoc(doc(db, "people", personId));
+    const name = li.querySelector("p.name").textContent;
+    tellUser(`<p>Person "${name}" has been deleted.`);
     li.outerHTML = "";
     const giftIdeas = document.querySelectorAll("ul.idea-list .idea");
     deleteGiftsFromDB(giftIdeas);
+    const checkIfOnlyPerson = document.querySelector("ul.person-list li");
+    if (!checkIfOnlyPerson) {
+      const ul = document.querySelector("ul.person-list");
+      ul.innerHTML = "";
+      ul.innerHTML = `<p class="empty">Oops! Looks like there are no people added</p>`;
+    }
     hideOverlay();
   } catch (err) {
     console.log(err.message);
@@ -345,6 +350,8 @@ async function deleteGift() {
   const giftId = li.dataset.id;
   try {
     await deleteDoc(doc(db, "gift-ideas", giftId));
+    const name = li.querySelector("p.title").textContent;
+    tellUser(`<p>Gift "${name}" has been deleted.`);
     li.outerHTML = "";
     hideOverlay();
     //If it is the only gift, call buildIdeas with no gifts
