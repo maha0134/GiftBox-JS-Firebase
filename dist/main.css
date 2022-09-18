@@ -12,7 +12,7 @@
   font-weight: 300;
 }
 html {
-  font-size: 20px;
+  font-size: 1.2rem;
   font-family: sans-serif;
 }
 body {
@@ -42,35 +42,53 @@ main {
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
+  box-shadow: 0 0 7px;
 }
 main > section {
   flex-basis: 50%;
   flex-grow: 1;
   flex-shrink: 1;
+  /* box-shadow: 0 0 6px black; */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  border: 1px solid var(--light-orange);
+  padding: 1rem;
 }
 section.ideas {
-  min-height: 100vh;
-  padding-left: 1rem;
-  border-left: 1px solid var(--light-orange);
+  border-left: none;
+}
+section p.empty {
+  padding: 1rem;
+  font-size: 1.2rem;
+  color: var(--dark-orange);
 }
 section h2 {
   font-size: 2rem;
   color: var(--dark-orange);
   display: flex;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
   justify-content: space-between;
 }
 section h2 > button {
-  margin-right: 4rem;
-  padding: 0.1rem 2rem;
+  padding: 0.5rem 1.5rem;
   border: 1px solid var(--dark-orange);
   background-color: #fff;
   color: var(--dark-orange);
+  font-size: 1.2rem;
+  transition: 0.25s linear;
   border-radius: var(--radii);
   cursor: pointer;
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
   -ms-border-radius: var(--radii);
   -o-border-radius: var(--radii);
+}
+section h2 > button:hover,
+section h2 > button:focus {
+  background-color: var(--dark-orange);
+  color: black;
 }
 ul {
   list-style: none;
@@ -155,6 +173,7 @@ ul {
 .idea-list i {
   justify-self: center;
   grid-area: icon;
+  cursor: pointer;
 }
 section.overlay {
   position: absolute;

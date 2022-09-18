@@ -57,9 +57,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("btnSavePerson")
     .addEventListener("click", savePerson);
-  document
-    .querySelector("ul.person-list")
-    .addEventListener("click", personClicked);
+  document.querySelector("ul.person-list").addEventListener("click", (ev) => {
+    if (ev.target.closest("i")) {
+      deletePerson(ev);
+    } else {
+      personClicked(ev);
+    }
+  });
+  document.querySelector("ul.idea-list").addEventListener("click", (ev) => {
+    if (ev.target.closest("i")) deleteGift(ev);
+  });
   getPeople();
 });
 
@@ -200,7 +207,7 @@ async function savePerson() {
 }
 //TODO
 function tellUser(info) {}
-
+//TODO add the icon tags here too
 function showPerson(person) {
   let li = document.getElementById(person.id);
   if (li) {
@@ -283,4 +290,12 @@ function showGift(giftIdea) {
       ul.innerHTML += liData;
     }
   }
+}
+
+async function deletePerson(ev) {
+  console.log("Ready to delete");
+}
+
+async function deleteGift(ev) {
+  console.log("Delete a gift");
 }
