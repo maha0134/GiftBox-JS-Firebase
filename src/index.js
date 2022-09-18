@@ -39,6 +39,7 @@ let months = [
   "December",
 ];
 const people = []; //to hold all the people from the collection
+const gifts = []; //to hold the giftIdeas
 
 document.addEventListener("DOMContentLoaded", () => {
   //set up the dom events
@@ -123,7 +124,7 @@ function buildPeople(people) {
 async function getIdeas(id) {
   //get an actual reference to the person document
   const personRef = doc(collection(db, "people"), id);
-  const gifts = [];
+
   //then run a query where the `person-id` property matches the reference for the person
   const docs = query(
     collection(db, "gift-ideas"),
@@ -219,14 +220,19 @@ async function saveIdea() {
   //function called when user clicks save button from person dialog
   let title = document.getElementById("title").value;
   let location = document.getElementById("location").value;
-  // let day = document.getElementById("day").value;
   if (!title || !location) return; //form needs more info
+  //find the selected person and get ID
   const selectedPerson = document.querySelector(".person.active");
   const personId = selectedPerson.dataset.id;
+
+  //get the reference of the selected person from DB
+  const personRef = doc(collection(db, "people"), personId);
+
+  //create the object to be pushed in the DB
   const giftIdea = {
     idea: title,
     location,
-    "person-id": `/people/${personId}`,
+    "person-id": personRef,
   };
 
   try {
