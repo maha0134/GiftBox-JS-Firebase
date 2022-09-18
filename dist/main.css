@@ -4,6 +4,7 @@
   --very-light-orange: #ffeb9a;
   --radii: 0.4rem;
   --color-accent: rgb(125, 236, 223);
+  --color-accent-dark: rgb(11, 123, 110);
 }
 * {
   box-sizing: border-box;
@@ -87,8 +88,8 @@ section h2 > button {
 }
 section h2 > button:hover,
 section h2 > button:focus {
-  background-color: var(--dark-orange);
-  color: black;
+  background-color: var(--color-accent-dark);
+  color: whitesmoke;
 }
 ul {
   list-style: none;
@@ -176,7 +177,7 @@ ul {
   cursor: pointer;
 }
 section.overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 100;
@@ -201,8 +202,16 @@ dialog.active {
   width: 80vw;
   height: 60vh;
 }
+dialog#dlgDelete.active {
+  width: 50vw;
+  height: 30vh;
+}
+dialog#dlgDelete.active p {
+  margin: 2rem 5rem;
+  font-size: 1.3rem;
+}
 dialog.active h2 {
-  background-color: var(--dark-orange);
+  background-color: var(--color-accent-dark);
   color: #fff;
   padding: 1rem 3rem;
   font-size: 2rem;
@@ -213,6 +222,7 @@ dialog.active p {
   justify-content: flex-start;
   align-items: flex-start;
 }
+
 dialog.active label {
   flex-basis: 20ch;
   font-size: 1rem;
@@ -226,13 +236,36 @@ dialog.active :is(input, button) {
 }
 dialog button {
   margin: 0 2rem;
-  padding: 0.1rem 2rem;
+  padding: 0.5rem 2rem;
   border: 1px solid var(--dark-orange);
   background-color: #fff;
   color: var(--dark-orange);
   border-radius: var(--radii);
+  transition: 0.25s linear;
   cursor: pointer;
+}
+dialog button:hover,
+dialog button:focus {
+  background-color: var(--color-accent-dark);
+  color: whitesmoke;
 }
 :is(dialog, h2) button:active {
   background-color: var(--light-orange);
+}
+
+.confirm.onscreen {
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: hsla(0, 0%, 7%, 0.9);
+}
+.confirm.onscreen p {
+  font-size: 1.5rem;
+  padding: 5rem;
+  background-color: whitesmoke;
+  border-radius: 1rem;
 }

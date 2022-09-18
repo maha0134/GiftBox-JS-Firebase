@@ -60,14 +60,26 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", savePerson);
   document.querySelector("ul.person-list").addEventListener("click", (ev) => {
     if (ev.target.closest("i")) {
-      deletePerson(ev);
+      showOverlay(ev);
     } else {
       personClicked(ev);
     }
   });
   document.querySelector("ul.idea-list").addEventListener("click", (ev) => {
-    if (ev.target.closest("i")) deleteGift(ev);
+    if (ev.target.closest("i")) showOverlay(ev);
   });
+  document.getElementById("btnCancelDelete").addEventListener("click", () => {
+    document.querySelector(".delete").classList.remove("delete");
+    hideOverlay();
+  });
+  document.getElementById("btnConfirmDelete").addEventListener("click", () => {
+    if (document.querySelector("ul.idea-list .delete")) {
+      deleteGift();
+    } else {
+      deletePerson();
+    }
+  });
+
   getPeople();
 });
 
@@ -79,7 +91,14 @@ function hideOverlay() {
 }
 function showOverlay(ev) {
   document.querySelector(".overlay").classList.add("active");
-  const id = ev.target.id === "btnAddPerson" ? "dlgPerson" : "dlgIdea";
+  let id = ev.target.id;
+  if (id === "btnAddPerson") id = "dlgPerson";
+  if (id === "btnAddIdea") id = "dlgIdea";
+  if (id === "btnDelete") {
+    id = "dlgDelete";
+    ev.target.parentElement.classList.add("delete");
+  }
+
   //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
 }
@@ -117,13 +136,13 @@ function buildPeople(people) {
         return `<li data-id="${person.id}" class="person active">
                 <div class="content"><p class="name">${person.name}</p>
                 <p class="dob">${dob}</p></div>
-                <i class="material-icons-outlined">delete</i>
+                <i class="material-icons-outlined" id="btnDelete">delete</i>
               </li>`;
       }
       return `<li data-id="${person.id}" class="person">
                 <div class="content"><p class="name">${person.name}</p>
                 <p class="dob">${dob}</p></div>
-                <i class="material-icons-outlined">delete</i>
+                <i class="material-icons-outlined" id="btnDelete">delete</i>
               </li>`;
     })
     .join("");
@@ -168,7 +187,7 @@ function buildIdeas(gifts) {
         return `<li class="idea" data-id = ${gift.id}><label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
       <p class="title">${gift.idea}</p>
       <p class="location">${gift.location}</p>
-      <i class="material-icons-outlined">delete</i>
+      <i class="material-icons-outlined" id="btnDelete">delete</i>
       </li>`;
       })
       .join("");
@@ -199,7 +218,7 @@ async function savePerson() {
     //2. hide the dialog and the overlay
     hideOverlay();
     //3. display a message to the user about success
-    tellUser(`Person ${name} added to database`);
+    tellUser(`<p>Person "${name}" added to database.</p>`);
     person.id = docRef.id;
     //4. ADD the new HTML to the <ul> using the new object
     showPerson(person);
@@ -210,8 +229,16 @@ async function savePerson() {
   }
 }
 //TODO
-function tellUser(info) {}
-//TODO add the icon tags here too
+function tellUser(info) {
+  const confirmationScreen = document.querySelector(".confirm");
+  confirmationScreen.classList.add("onscreen");
+  confirmationScreen.innerHTML = info;
+  setTimeout(() => {
+    confirmationScreen.classList.remove("onscreen");
+    confirmationScreen.innerHTML = "";
+  }, 2000);
+}
+
 function showPerson(person) {
   let li = document.getElementById(person.id);
   if (li) {
@@ -220,16 +247,18 @@ function showPerson(person) {
     //Use the number of the birth-month less 1 as the index for the months array
     //replace the existing li with this new HTML
     li.outerHTML = `<li data-id="${person.id}" class="person">
-            <p class="name">${person.name}</p>
-            <p class="dob">${dob}</p>
+            <div class="content"><p class="name">${person.name}</p>
+            <p class="dob">${dob}</p></div>
+            <i class="material-icons-outlined" id="btnDelete">delete</i>
           </li>`;
   } else {
     //add to screen
     const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
     //Use the number of the birth-month less 1 as the index for the months array
     li = `<li data-id="${person.id}" class="person">
-            <p class="name">${person.name}</p>
-            <p class="dob">${dob}</p>
+            <div class="content"><p class="name">${person.name}</p>
+            <p class="dob">${dob}</p></div>
+            <i class="material-icons-outlined" id="btnDelete">delete</i>
           </li>`;
     document.querySelector("ul.person-list").innerHTML += li;
   }
@@ -264,7 +293,7 @@ async function saveIdea() {
     //2. hide the dialog and the overlay
     hideOverlay();
     //3. display a message to the user about success
-    tellUser(`Gift idea ${title} added to database`);
+    tellUser(`<p>Gift idea "${title}" added to database</p>`);
     // giftIdea.id = docRef.id;
     //4. ADD the new HTML to the <ul> using the new object
     showGift(giftIdea);
@@ -279,7 +308,8 @@ function showGift(giftIdea) {
   const liData = `<li data-id=${giftIdea.id} class="idea">
                     <label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
                     <p class="title">${giftIdea.idea}</p>
-                    <p class="location">${giftIdea.location}</p>`;
+                    <p class="location">${giftIdea.location}</p>
+                    <i class="material-icons-outlined" id="btnDelete">delete</i></li>`;
   const li = document.getElementById(giftIdea.id);
   if (li) {
     //update the gift Idea
@@ -296,24 +326,27 @@ function showGift(giftIdea) {
   }
 }
 
-async function deletePerson(ev) {
-  console.log("Ready to delete");
-  const personId = ev.target.parentElement.dataset.id;
+async function deletePerson() {
+  const li = document.querySelector(".delete");
+  const personId = li.dataset.id;
   try {
     await deleteDoc(doc(db, "people", personId));
-    ev.target.parentElement.outerHTML = "";
+    li.outerHTML = "";
     const giftIdeas = document.querySelectorAll("ul.idea-list .idea");
     deleteGiftsFromDB(giftIdeas);
+    hideOverlay();
   } catch (err) {
     console.log(err.message);
   }
 }
 
-async function deleteGift(ev) {
-  const giftId = ev.target.parentElement.dataset.id;
+async function deleteGift() {
+  const li = document.querySelector(".delete");
+  const giftId = li.dataset.id;
   try {
     await deleteDoc(doc(db, "gift-ideas", giftId));
-    ev.target.parentElement.outerHTML = "";
+    li.outerHTML = "";
+    hideOverlay();
     //If it is the only gift, call buildIdeas with no gifts
     const checkIfOnlyGift = document.querySelector("ul.idea-list li");
     if (!checkIfOnlyGift) {
