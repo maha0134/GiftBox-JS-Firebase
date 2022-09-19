@@ -53,7 +53,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("btnAddPerson")
     .addEventListener("click", showOverlay);
-  document.getElementById("btnAddIdea").addEventListener("click", showOverlay);
+  document.getElementById("btnAddIdea").addEventListener("click", (ev) => {
+    if (document.querySelector("ul.person-list .person.active")) {
+      showOverlay(ev);
+    }
+  });
   document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
   document
     .getElementById("btnSavePerson")
@@ -89,6 +93,7 @@ function hideOverlay() {
     .querySelectorAll(".overlay dialog")
     .forEach((dialog) => dialog.classList.remove("active"));
 }
+
 function showOverlay(ev) {
   document.querySelector(".overlay").classList.add("active");
   let id = ev.target.id;
@@ -98,8 +103,6 @@ function showOverlay(ev) {
     id = "dlgDelete";
     ev.target.parentElement.classList.add("delete");
   }
-
-  //TODO: check that person is selected before adding an idea
   document.getElementById(id).classList.add("active");
 }
 
@@ -255,6 +258,8 @@ function showPerson(person) {
     const ul = document.querySelector("ul.person-list");
     if (ul.firstElementChild.tagName === "P") {
       ul.innerHTML = liData;
+      document.querySelector(".person").classList.add("active");
+      buildIdeas([]);
     } else {
       ul.innerHTML += liData;
     }
