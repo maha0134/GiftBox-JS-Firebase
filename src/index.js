@@ -303,7 +303,7 @@ function tellUser(info) {
 }
 
 function showPerson(person) {
-  let li = document.getElementById(person.id);
+  let li = document.querySelector(`[data-id=${person.id}]`);
   const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
   const liData = `<li data-id="${person.id}" class="person">
             <span class="content"><p class="name">${person.name}</p>
@@ -349,18 +349,25 @@ async function saveIdea() {
   };
 
   try {
-    const docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
-    console.log("Document written with ID: ", docRef.id);
+    let docRef;
+    const ref = document.querySelector(".ref");
+    if (ref) {
+      const giftId = ref.textContent.toString().split(":")[1];
+      giftIdea.id = giftId;
+      const documentRef = doc(db, "gift-ideas", giftId);
+      await setDoc(documentRef, giftIdea);
+      console.log("Document edited");
+      tellUser(`<p>Gift Idea "${title}" edited.</p>`);
+    } else {
+      docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
+      console.log("Document written with ID: ", docRef.id);
+      tellUser(`<p>Gift Idea "${title}" added to database.</p>`);
+      giftIdea.id = docRef.id;
+    }
     //1. clear the form fields
     document.getElementById("title").value = "";
     document.getElementById("location").value = "";
-    // document.getElementById("day").value = "";
-    //2. hide the dialog and the overlay
     hideOverlay();
-    //3. display a message to the user about success
-    tellUser(`<p>Gift idea "${title}" added to database</p>`);
-    // giftIdea.id = docRef.id;
-    //4. ADD the new HTML to the <ul> using the new object
     showGift(giftIdea);
   } catch (err) {
     console.error("Error adding document: ", err);
@@ -376,7 +383,7 @@ function showGift(giftIdea) {
                     <p class="location">${giftIdea.location}</p>
                     <i class="material-icons-outlined"id="btnEditIdea">edit</i>
                     <i class="material-icons-outlined" id="btnDelete">delete</i></li>`;
-  const li = document.getElementById(giftIdea.id);
+  const li = document.querySelector(`[data-id=${giftIdea.id}]`);
   if (li) {
     //update the gift Idea
     li.outerHTML = liData;
