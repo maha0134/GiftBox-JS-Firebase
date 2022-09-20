@@ -2,7 +2,7 @@
   --dark-orange: #f5820d;
   --light-orange: #ffcb2a;
   --very-light-orange: #ffeb9a;
-  --radii: 0.4rem;
+  --radii: 0.25rem;
   --color-accent: rgb(125, 236, 223);
   --color-accent-dark: rgb(11, 123, 110);
 }
@@ -96,8 +96,10 @@ ul {
 }
 .person-list li {
   margin: 1rem 0;
-  padding: 0.5rem 2rem;
+  padding: 0.75rem 2rem;
   cursor: pointer;
+  box-shadow: 0 0 5px;
+  border-radius: var(--radii);
 }
 
 .person-list p.name {
@@ -125,14 +127,15 @@ ul {
   color: red;
 }
 .idea-list li.idea {
-  border: 1px solid #222;
+  box-shadow: 0 0 5px;
   border-radius: var(--radii);
   margin: 1rem 0;
   display: grid;
+  padding: 0 0.5rem;
   align-items: center;
   /*usenamedgridareas*/
-  grid-template-areas: "tab top icon" "tab bottom icon";
-  grid-template-columns: 1fr 4fr 1fr;
+  grid-template-areas: "tab top iconEdit iconDelete" "tab bottom iconEdit iconDelete";
+  grid-template-columns: 1.1fr 4fr 0.8fr 0.7fr;
   background-color: var(--color-accent);
   -webkit-border-radius: var(--radii);
   -moz-border-radius: var(--radii);
@@ -140,24 +143,27 @@ ul {
   -o-border-radius: var(--radii);
 }
 .idea-list .idea label {
-  font-size: 0.8rem;
+  font-size: 1rem;
   line-height: 1rem;
   font-weight: 100;
   padding: 0.5rem;
   color: #222;
   grid-area: tab;
-  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 .idea-list .idea label:has(input[type="checkbox"]:checked) {
   color: #555;
 }
 .idea-list .idea [type="checkbox"] {
-  accent-color: var(--light-orange);
+  accent-color: red;
 }
 .idea-list p.title {
   font-size: 1.2rem;
   line-height: 2rem;
-  padding: 0.5rem;
+  padding: 0.5rem 0.5rem 0;
   color: #222;
   background-color: #fff;
   grid-area: top;
@@ -171,9 +177,14 @@ ul {
   background-color: #fff;
   grid-area: bottom;
 }
-.idea-list i {
+.idea-list i:first-of-type {
   justify-self: center;
-  grid-area: icon;
+  grid-area: iconEdit;
+  cursor: pointer;
+}
+.idea-list i:last-of-type {
+  justify-self: center;
+  grid-area: iconDelete;
   cursor: pointer;
 }
 section.overlay {

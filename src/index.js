@@ -8,6 +8,7 @@ import {
   where,
   addDoc,
   deleteDoc,
+  getDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -42,14 +43,15 @@ let months = [
 
 document.addEventListener("DOMContentLoaded", () => {
   //set up the dom events
+  //Cancel Buttons
   document
     .getElementById("btnCancelPerson")
     .addEventListener("click", hideOverlay);
   document
     .getElementById("btnCancelIdea")
     .addEventListener("click", hideOverlay);
-  // document.querySelector(".overlay").addEventListener("click", hideOverlay);
 
+  //Add Buttons
   document
     .getElementById("btnAddPerson")
     .addEventListener("click", showOverlay);
@@ -58,10 +60,14 @@ document.addEventListener("DOMContentLoaded", () => {
       showOverlay(ev);
     }
   });
+
+  //Save Buttons
   document.getElementById("btnSaveIdea").addEventListener("click", saveIdea);
   document
     .getElementById("btnSavePerson")
     .addEventListener("click", savePerson);
+
+  //Click on items
   document.querySelector("ul.person-list").addEventListener("click", (ev) => {
     if (ev.target.closest("i")) {
       showOverlay(ev);
@@ -69,13 +75,17 @@ document.addEventListener("DOMContentLoaded", () => {
       personClicked(ev);
     }
   });
+
   document.querySelector("ul.idea-list").addEventListener("click", (ev) => {
     if (ev.target.closest("i")) showOverlay(ev);
   });
+
+  //cancel buttons on dialogues
   document.getElementById("btnCancelDelete").addEventListener("click", () => {
     document.querySelector(".delete").classList.remove("delete");
     hideOverlay();
   });
+  //Confirm buttons on dialogues
   document.getElementById("btnConfirmDelete").addEventListener("click", () => {
     if (document.querySelector("ul.idea-list .delete")) {
       deleteGift();
@@ -89,6 +99,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function hideOverlay() {
   document.querySelector(".overlay").classList.remove("active");
+
+  if (document.querySelector(".editPerson")) {
+    document.getElementById("name").value = "";
+    document.getElementById("month").value = "1";
+    document.getElementById("day").value = "1";
+  }
+
+  if (document.querySelector(".editIdea")) {
+    document.getElementById("title").value = "";
+    document.getElementById("location").value = "";
+  }
+
   document
     .querySelectorAll(".overlay dialog")
     .forEach((dialog) => dialog.classList.remove("active"));
@@ -96,12 +118,25 @@ function hideOverlay() {
 
 function showOverlay(ev) {
   document.querySelector(".overlay").classList.add("active");
-  let id = ev.target.id;
+  let targetElement = ev.target;
+  let id = targetElement.id;
   if (id === "btnAddPerson") id = "dlgPerson";
   if (id === "btnAddIdea") id = "dlgIdea";
   if (id === "btnDelete") {
     id = "dlgDelete";
-    ev.target.parentElement.classList.add("delete");
+    targetElement.closest("li").classList.add("delete");
+  }
+  if (id === "btnEditPerson") {
+    const li = targetElement.closest("li");
+    li.classList.add("editPerson");
+    editPerson(li);
+    id = "dlgPerson";
+  }
+  if (id === "btnEditIdea") {
+    const li = targetElement.closest("li");
+    li.classList.add("editIdea");
+    editIdea(li);
+    id = "dlgIdea";
   }
   document.getElementById(id).classList.add("active");
 }
@@ -129,7 +164,7 @@ function buildPeople(people) {
   //build the HTML
   let ul = document.querySelector("ul.person-list");
   let index = 0;
-  //replace the old ul contents with the new.
+  //replace the old ul contents with the new
   ul.innerHTML = "";
   ul.innerHTML = people
     .map((person) => {
@@ -137,15 +172,19 @@ function buildPeople(people) {
       if (index == 0) {
         index += 1;
         return `<li data-id="${person.id}" class="person active">
-                <div class="content"><p class="name">${person.name}</p>
-                <p class="dob">${dob}</p></div>
-                <i class="material-icons-outlined" id="btnDelete">delete</i>
+                <span class="content"><p class="name">${person.name}</p>
+                <p class="dob">${dob}</p></span>
+                <span class="icons">
+                <i class="material-icons-outlined"id="btnEditPerson">edit</i>
+                <i class="material-icons-outlined" id="btnDelete">delete</i></span>
               </li>`;
       }
       return `<li data-id="${person.id}" class="person">
-                <div class="content"><p class="name">${person.name}</p>
-                <p class="dob">${dob}</p></div>
-                <i class="material-icons-outlined" id="btnDelete">delete</i>
+                <span class="content"><p class="name">${person.name}</p>
+                <p class="dob">${dob}</p></span>
+                <span class="icons">
+                <i class="material-icons-outlined"id="btnEditPerson">edit</i>
+                <i class="material-icons-outlined" id="btnDelete">delete</i></span>
               </li>`;
     })
     .join("");
@@ -181,6 +220,7 @@ async function getIdeas(id) {
   });
   buildIdeas(gifts);
 }
+
 function buildIdeas(gifts) {
   let ul = document.querySelector("ul.idea-list");
   ul.innerHTML = "";
@@ -190,6 +230,7 @@ function buildIdeas(gifts) {
         return `<li class="idea" data-id = ${gift.id}><label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
       <p class="title">${gift.idea}</p>
       <p class="location">${gift.location}</p>
+      <i class="material-icons-outlined"id="btnEditIdea">edit</i>
       <i class="material-icons-outlined" id="btnDelete">delete</i>
       </li>`;
       })
@@ -246,9 +287,12 @@ function showPerson(person) {
   let li = document.getElementById(person.id);
   const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
   const liData = `<li data-id="${person.id}" class="person">
-            <div class="content"><p class="name">${person.name}</p>
-            <p class="dob">${dob}</p></div>
+            <span class="content"><p class="name">${person.name}</p>
+            <p class="dob">${dob}</p></span>
+            <span class="icons">
+            <i class="material-icons-outlined" id="btnEditPerson">edit</i>
             <i class="material-icons-outlined" id="btnDelete">delete</i>
+            </span>
           </li>`;
   if (li) {
     //update on screen
@@ -311,6 +355,7 @@ function showGift(giftIdea) {
                     <label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
                     <p class="title">${giftIdea.idea}</p>
                     <p class="location">${giftIdea.location}</p>
+                    <i class="material-icons-outlined"id="btnEditIdea">edit</i>
                     <i class="material-icons-outlined" id="btnDelete">delete</i></li>`;
   const li = document.getElementById(giftIdea.id);
   if (li) {
@@ -383,4 +428,25 @@ async function deleteGiftsFromDB(giftIdeas) {
   } catch (err) {
     console.log(err.message);
   }
+}
+
+async function editPerson(li) {
+  const id = li.dataset.id;
+  const docRef = doc(db, "people", id);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  const dialog = document.getElementById("dlgPerson");
+  dialog.querySelector("#name").value = data.name;
+  dialog.querySelector("#month").value = parseInt(data["birth-month"]);
+  dialog.querySelector("#day").value = parseInt(data["birth-day"]);
+}
+
+async function editIdea(li) {
+  const id = li.dataset.id;
+  const docRef = doc(db, "gift-ideas", id);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  const dialog = document.getElementById("dlgIdea");
+  dialog.querySelector("#title").value = data.idea;
+  dialog.querySelector("#location").value = data.location;
 }
