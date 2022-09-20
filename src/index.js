@@ -9,6 +9,7 @@ import {
   addDoc,
   deleteDoc,
   getDoc,
+  setDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -100,17 +101,19 @@ document.addEventListener("DOMContentLoaded", () => {
 function hideOverlay() {
   document.querySelector(".overlay").classList.remove("active");
   const editPerson = document.querySelector(".editPerson");
+  //clear all forms
+  document.getElementById("name").value = "";
+  document.getElementById("month").value = "1";
+  document.getElementById("day").value = "1";
+  document.getElementById("title").value = "";
+  document.getElementById("location").value = "";
+
   if (editPerson) {
-    document.getElementById("name").value = "";
-    document.getElementById("month").value = "1";
-    document.getElementById("day").value = "1";
     document.querySelector(".ref").outerHTML = "";
     editPerson.classList.remove("editPerson");
   }
   const editIdea = document.querySelector(".editIdea");
   if (editIdea) {
-    document.getElementById("title").value = "";
-    document.getElementById("location").value = "";
     document.querySelector(".ref").outerHTML = "";
     editIdea.classList.remove("editIdea");
   }
@@ -133,13 +136,13 @@ function showOverlay(ev) {
   if (id === "btnEditPerson") {
     const li = targetElement.closest("li");
     li.classList.add("editPerson");
-    editPerson(li);
+    editPersonLocal(li);
     id = "dlgPerson";
   }
   if (id === "btnEditIdea") {
     const li = targetElement.closest("li");
     li.classList.add("editIdea");
-    editIdea(li);
+    editIdeaLocal(li);
     id = "dlgIdea";
   }
   document.getElementById(id).classList.add("active");
@@ -257,8 +260,21 @@ async function savePerson() {
     "birth-day": day,
   };
   try {
-    const docRef = await addDoc(collection(db, "people"), person);
-    console.log("Document written with ID: ", docRef.id);
+    let docRef;
+    const ref = document.querySelector(".ref");
+    if (ref) {
+      const personId = ref.textContent.toString().split(":")[1];
+      person.id = personId;
+      const documentRef = doc(db, "people", personId);
+      await setDoc(documentRef, person);
+      console.log("Document edited");
+      tellUser(`<p>Person "${name}" edited.</p>`);
+    } else {
+      docRef = await addDoc(collection(db, "people"), person);
+      console.log("Document written with ID: ", docRef.id);
+      tellUser(`<p>Person "${name}" added to database.</p>`);
+      person.id = docRef.id;
+    }
     //1. clear the form fields
     document.getElementById("name").value = "";
     document.getElementById("month").value = "";
@@ -266,8 +282,7 @@ async function savePerson() {
     //2. hide the dialog and the overlay
     hideOverlay();
     //3. display a message to the user about success
-    tellUser(`<p>Person "${name}" added to database.</p>`);
-    person.id = docRef.id;
+
     //4. ADD the new HTML to the <ul> using the new object
     showPerson(person);
   } catch (err) {
@@ -434,14 +449,14 @@ async function deleteGiftsFromDB(giftIdeas) {
   }
 }
 
-async function editPerson(li) {
+async function editPersonLocal(li) {
   const id = li.dataset.id;
   const docRef = doc(db, "people", id);
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgPerson");
   const refPara = document.createElement("p");
-  refPara.textContent = `Person id: ${id}`;
+  refPara.textContent = `Person id:${id}`;
   refPara.classList.add("ref");
   dialog.insertBefore(refPara, dialog.children[1]);
   dialog.querySelector("#name").value = data.name;
@@ -449,14 +464,14 @@ async function editPerson(li) {
   dialog.querySelector("#day").value = parseInt(data["birth-day"]);
 }
 
-async function editIdea(li) {
+async function editIdeaLocal(li) {
   const id = li.dataset.id;
   const docRef = doc(db, "gift-ideas", id);
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgIdea");
   const refPara = document.createElement("p");
-  refPara.textContent = `Gift Idea id: ${id}`;
+  refPara.textContent = `Gift Idea id:${id}`;
   refPara.classList.add("ref");
   dialog.insertBefore(refPara, dialog.children[1]);
   dialog.querySelector("#title").value = data.idea;
