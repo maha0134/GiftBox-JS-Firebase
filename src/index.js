@@ -99,16 +99,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function hideOverlay() {
   document.querySelector(".overlay").classList.remove("active");
-
-  if (document.querySelector(".editPerson")) {
+  const editPerson = document.querySelector(".editPerson");
+  if (editPerson) {
     document.getElementById("name").value = "";
     document.getElementById("month").value = "1";
     document.getElementById("day").value = "1";
+    document.querySelector(".ref").outerHTML = "";
+    editPerson.classList.remove("editPerson");
   }
-
-  if (document.querySelector(".editIdea")) {
+  const editIdea = document.querySelector(".editIdea");
+  if (editIdea) {
     document.getElementById("title").value = "";
     document.getElementById("location").value = "";
+    document.querySelector(".ref").outerHTML = "";
+    editIdea.classList.remove("editIdea");
   }
 
   document
@@ -436,6 +440,10 @@ async function editPerson(li) {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgPerson");
+  const refPara = document.createElement("p");
+  refPara.textContent = `Person id: ${id}`;
+  refPara.classList.add("ref");
+  dialog.insertBefore(refPara, dialog.children[1]);
   dialog.querySelector("#name").value = data.name;
   dialog.querySelector("#month").value = parseInt(data["birth-month"]);
   dialog.querySelector("#day").value = parseInt(data["birth-day"]);
@@ -447,6 +455,10 @@ async function editIdea(li) {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgIdea");
+  const refPara = document.createElement("p");
+  refPara.textContent = `Gift Idea id: ${id}`;
+  refPara.classList.add("ref");
+  dialog.insertBefore(refPara, dialog.children[1]);
   dialog.querySelector("#title").value = data.idea;
   dialog.querySelector("#location").value = data.location;
 }
