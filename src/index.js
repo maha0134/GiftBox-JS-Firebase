@@ -10,6 +10,7 @@ import {
   deleteDoc,
   getDoc,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -145,6 +146,7 @@ function showOverlay(ev) {
     editIdeaLocal(li);
     id = "dlgIdea";
   }
+
   document.getElementById(id).classList.add("active");
 }
 
@@ -234,7 +236,15 @@ function buildIdeas(gifts) {
   if (gifts.length > 0) {
     ul.innerHTML = gifts
       .map((gift) => {
-        return `<li class="idea" data-id = ${gift.id}><label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
+        if (gift.bought) {
+          return `<li class="idea" data-id = ${gift.id}><label for="chk-${gift.id}"><input type="checkbox" id="chk-${gift.id}" checked /> Bought</label>
+        <p class="title">${gift.idea}</p>
+        <p class="location">${gift.location}</p>
+        <i class="material-icons-outlined"id="btnEditIdea">edit</i>
+        <i class="material-icons-outlined" id="btnDelete">delete</i>
+        </li>`;
+        }
+        return `<li class="idea" data-id = ${gift.id}><label for="chk-${gift.id}"><input type="checkbox" id="chk-${gift.id}" /> Bought</label>
       <p class="title">${gift.idea}</p>
       <p class="location">${gift.location}</p>
       <i class="material-icons-outlined"id="btnEditIdea">edit</i>
@@ -242,10 +252,12 @@ function buildIdeas(gifts) {
       </li>`;
       })
       .join("");
+    document.querySelector(".idea");
   } else {
     console.log;
     ul.innerHTML = `<p class="empty">Oops! Looks like there are no gifts added for the selected person</p>`;
   }
+  addBoughtListener();
 }
 
 async function savePerson() {
@@ -303,7 +315,7 @@ function tellUser(info) {
 }
 
 function showPerson(person) {
-  let li = document.querySelector(`[data-id=${person.id}]`);
+  let li = document.querySelector(`[data-id="${person.id}"]`);
   const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
   const liData = `<li data-id="${person.id}" class="person">
             <span class="content"><p class="name">${person.name}</p>
@@ -340,11 +352,11 @@ async function saveIdea() {
 
   //get the reference of the selected person from DB
   const personRef = doc(collection(db, "people"), personId);
-
   //create the object to be pushed in the DB
   const giftIdea = {
     idea: title,
     location,
+    bought: false,
     "person-id": personRef,
   };
 
@@ -353,9 +365,9 @@ async function saveIdea() {
     const ref = document.querySelector(".ref");
     if (ref) {
       const giftId = ref.textContent.toString().split(":")[1];
-      giftIdea.id = giftId;
       const documentRef = doc(db, "gift-ideas", giftId);
       await setDoc(documentRef, giftIdea);
+      giftIdea.id = giftId;
       console.log("Document edited");
       tellUser(`<p>Gift Idea "${title}" edited.</p>`);
     } else {
@@ -364,6 +376,7 @@ async function saveIdea() {
       tellUser(`<p>Gift Idea "${title}" added to database.</p>`);
       giftIdea.id = docRef.id;
     }
+
     //1. clear the form fields
     document.getElementById("title").value = "";
     document.getElementById("location").value = "";
@@ -377,13 +390,13 @@ async function saveIdea() {
 }
 
 function showGift(giftIdea) {
-  const liData = `<li data-id=${giftIdea.id} class="idea">
+  const liData = `<li data-id="${giftIdea.id}" class="idea">
                     <label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
                     <p class="title">${giftIdea.idea}</p>
                     <p class="location">${giftIdea.location}</p>
                     <i class="material-icons-outlined"id="btnEditIdea">edit</i>
                     <i class="material-icons-outlined" id="btnDelete">delete</i></li>`;
-  const li = document.querySelector(`[data-id=${giftIdea.id}]`);
+  const li = document.querySelector(`[data-id="${giftIdea.id}"]`);
   if (li) {
     //update the gift Idea
     li.outerHTML = liData;
@@ -397,6 +410,7 @@ function showGift(giftIdea) {
       ul.innerHTML += liData;
     }
   }
+  addBoughtListener();
 }
 
 async function deletePerson() {
@@ -483,4 +497,32 @@ async function editIdeaLocal(li) {
   dialog.insertBefore(refPara, dialog.children[1]);
   dialog.querySelector("#title").value = data.idea;
   dialog.querySelector("#location").value = data.location;
+}
+
+function addBoughtListener() {
+  const checkboxes = document.querySelectorAll(".idea input[type=checkbox]");
+  if (checkboxes) {
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", boughtCheckbox);
+    });
+  }
+}
+
+async function boughtCheckbox(ev) {
+  const checkbox = ev.target;
+  const id = checkbox.id.split("-")[1];
+  try {
+    const docRef = doc(db, "gift-ideas", id);
+    if (ev.target.checked) {
+      await updateDoc(docRef, {
+        bought: true,
+      });
+    } else {
+      await updateDoc(docRef, {
+        bought: false,
+      });
+    }
+  } catch (err) {
+    console.log(err.message);
+  }
 }

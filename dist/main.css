@@ -1,10 +1,13 @@
 :root {
-  --dark-orange: #f5820d;
-  --light-orange: #ffcb2a;
-  --very-light-orange: #ffeb9a;
+  --color-primary-text: rgb(0, 0, 0);
+  --color-text-dark: rgb(21, 0, 255);
+  --color-banner: rgb(37, 243, 219);
+  /* --very-color-banner: #d7fff8; */
   --radii: 0.25rem;
-  --color-accent: rgb(125, 236, 223);
+  --color-accent: rgb(37, 243, 219);
+  --color-banner-text: rgb(0, 0, 0);
   --color-accent-dark: rgb(11, 123, 110);
+  --color-icons: rgb(0, 98, 255);
 }
 * {
   box-sizing: border-box;
@@ -24,20 +27,20 @@ main {
   padding: 1rem 4rem;
 }
 header {
-  background-color: var(--light-orange);
-  border-bottom: 0.1rem solid var(--dark-orange);
+  background-color: var(--color-banner);
+  border-bottom: 0.1rem solid var(--color-primary-text);
   box-shadow: 0 0 7px;
 }
 header h1 {
   font-size: 4rem;
   font-weight: 500;
-  color: #fff;
-  text-shadow: 2px 2px 2px var(--dark-orange);
+  color: var(--color-text-dark);
+  /* text-shadow: 2px 2px 2px var(--color-primary-text); */
 }
 header h2 {
   font-size: 2.5rem;
   font-weight: 300;
-  color: var(--dark-orange);
+  color: var(--color-banner-text);
 }
 main {
   display: flex;
@@ -51,24 +54,26 @@ main > section {
   flex-basis: 50%;
   flex-grow: 1;
   flex-shrink: 1;
-  /* box-shadow: 0 0 6px black; */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  border: 1px solid var(--light-orange);
   padding: 1rem;
 }
 section.ideas {
-  border-left: none;
+  box-shadow: 0 0 2px var(--color-banner);
 }
+section.people {
+  box-shadow: 0 0 2px var(--color-banner);
+}
+
 section p.empty {
   padding: 1rem;
   font-size: 1.2rem;
-  color: var(--dark-orange);
+  color: var(--color-primary-text);
 }
 section h2 {
   font-size: 2rem;
-  color: var(--dark-orange);
+  color: var(--color-primary-text);
   display: flex;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -76,9 +81,9 @@ section h2 {
 }
 section h2 > button {
   padding: 0.5rem 1.5rem;
-  border: 1px solid var(--dark-orange);
+  border: 1px solid var(--color-primary-text);
   background-color: #fff;
-  color: var(--dark-orange);
+  color: var(--color-primary-text);
   font-size: 1.2rem;
   transition: 0.25s linear;
   border-radius: var(--radii);
@@ -113,7 +118,7 @@ ul {
   font-size: 0.8rem;
   line-height: 1rem;
   font-weight: 100;
-  color: #777;
+  color: #222;
 }
 .person.active {
   background-color: var(--color-accent);
@@ -126,7 +131,7 @@ ul {
 .person i,
 .idea i {
   font-size: 40px;
-  color: red;
+  color: var(--color-icons);
 }
 .idea-list li.idea {
   box-shadow: 0 0 5px;
@@ -149,7 +154,7 @@ ul {
   line-height: 1rem;
   font-weight: 100;
   padding: 0.5rem;
-  color: #222;
+  color: #000;
   grid-area: tab;
   display: flex;
   flex-direction: column;
@@ -157,16 +162,16 @@ ul {
   gap: 0.5rem;
 }
 .idea-list .idea label:has(input[type="checkbox"]:checked) {
-  color: #555;
+  color: #000;
 }
 .idea-list .idea [type="checkbox"] {
-  accent-color: red;
+  accent-color: var(--color-icons);
 }
 .idea-list p.title {
   font-size: 1.2rem;
   line-height: 2rem;
   padding: 0.5rem 0.5rem 0;
-  color: #222;
+  color: #000;
   background-color: #fff;
   grid-area: top;
 }
@@ -175,7 +180,7 @@ ul {
   line-height: 1rem;
   padding: 0.5rem;
   font-weight: 100;
-  color: #555;
+  color: #000;
   background-color: #fff;
   grid-area: bottom;
 }
@@ -250,9 +255,9 @@ dialog.active :is(input, button) {
 dialog button {
   margin: 0 2rem;
   padding: 0.5rem 2rem;
-  border: 1px solid var(--dark-orange);
+  border: 1px solid var(--color-primary-text);
   background-color: #fff;
-  color: var(--dark-orange);
+  color: var(--color-primary-text);
   border-radius: var(--radii);
   transition: 0.25s linear;
   cursor: pointer;
@@ -263,7 +268,7 @@ dialog button:focus {
   color: whitesmoke;
 }
 :is(dialog, h2) button:active {
-  background-color: var(--light-orange);
+  background-color: var(--color-banner);
 }
 
 .confirm.onscreen {
