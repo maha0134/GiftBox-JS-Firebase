@@ -163,7 +163,8 @@ async function getPeople(querySnapshot) {
   if (people.length > 0) {
     buildPeople(people);
     //highlights first person
-    getIdeas(people[0].id);
+    // getIdeas(people[0].id);
+    addOnSnapShotGifts(people[0].id);
   } else {
     const ul = document.querySelector("ul.person-list");
     ul.innerHTML = "";
@@ -212,20 +213,38 @@ function personClicked(ev) {
     clickedPerson.classList.add("active");
     const id = clickedPerson.dataset.id;
     selectedPersonId = id;
-    getIdeas(id);
+    // getIdeas(id);
+    addOnSnapShotGifts(id);
   }
 }
 
-async function getIdeas(id) {
+// async function getIdeas(id) {
+//   //get an actual reference to the person document
+//   const personRef = doc(collection(db, "people"), id);
+//   const gifts = []; //to hold the giftIdeas
+//   //then run a query where the `person-id` property matches the reference for the person
+//   const docs = query(
+//     collection(db, "gift-ideas"),
+//     where("person-id", "==", personRef)
+//   );
+//   const querySnapshot = await getDocs(docs);
+//   querySnapshot.forEach((doc) => {
+//     const data = doc.data();
+//     const id = doc.id;
+//     gifts.push({ id, ...data });
+//   });
+//   buildIdeas(gifts);
+// }
+async function getIdeas(querySnapshot) {
   //get an actual reference to the person document
-  const personRef = doc(collection(db, "people"), id);
+  // const personRef = doc(collection(db, "people"), id);
   const gifts = []; //to hold the giftIdeas
   //then run a query where the `person-id` property matches the reference for the person
-  const docs = query(
-    collection(db, "gift-ideas"),
-    where("person-id", "==", personRef)
-  );
-  const querySnapshot = await getDocs(docs);
+  // const docs = query(
+  //   collection(db, "gift-ideas"),
+  //   where("person-id", "==", personRef)
+  // );
+  // const querySnapshot = await getDocs(docs);
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const id = doc.id;
@@ -466,22 +485,31 @@ async function deletePerson(person) {
   }
 }
 
-async function deleteGift() {
-  const li = document.querySelector(".delete");
-  const giftId = li.dataset.id;
-  try {
-    await deleteDoc(doc(db, "gift-ideas", giftId));
-    const name = li.querySelector("p.title").textContent;
-    tellUser(`<p>Gift "${name}" has been deleted.`);
-    li.outerHTML = "";
-    hideOverlay();
-    //If it is the only gift, call buildIdeas with no gifts
-    const checkIfOnlyGift = document.querySelector("ul.idea-list li");
-    if (!checkIfOnlyGift) {
-      buildIdeas([]);
+async function deleteGift(gift) {
+  if (gift) {
+    const li = document.querySelector(
+      `.ideas [data-id="${gift.id.toString()}"]`
+    );
+    if (li) {
+      li.outerHTML = "";
     }
-  } catch (err) {
-    console.log(err.message);
+  } else {
+    const li = document.querySelector(".delete");
+    const giftId = li.dataset.id;
+    try {
+      await deleteDoc(doc(db, "gift-ideas", giftId));
+      const name = li.querySelector("p.title").textContent;
+      tellUser(`<p>Gift "${name}" has been deleted.`);
+      li.outerHTML = "";
+      hideOverlay();
+      //If it is the only gift, call buildIdeas with no gifts
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+  const checkIfOnlyGift = document.querySelector("ul.idea-list li");
+  if (!checkIfOnlyGift) {
+    buildIdeas([]);
   }
 }
 //Experimental code
@@ -596,15 +624,20 @@ function addOnSnapShotPeople() {
     }
   );
 }
-function addOnSnapShotGifts() {
+
+function addOnSnapShotGifts(personId) {
   let firstCall = true;
+  const personRef = doc(collection(db, "people"), personId);
+  const q = query(
+    collection(db, "gift-ideas"),
+    where("person-id", "==", personRef)
+  );
   const unsubscribe = onSnapshot(
-    collection(db, "people"),
+    q,
     (snapshot) => {
       if (firstCall) {
-        getPeople(snapshot);
+        getIdeas(snapshot);
         firstCall = false;
-        console.log("am i building again?");
       } else {
         snapshot.docChanges().forEach((change) => {
           //local changes will be handled directly
@@ -612,19 +645,22 @@ function addOnSnapShotGifts() {
             console.log("local change");
           } else {
             //only database side changes(includes if someone else changes stuff on website in parallel)
-            const person = change.doc.data();
-            const personId = change.doc.id;
-            person.id = personId;
-            switch (change.type) {
-              case "added":
-                showPerson(person);
-                break;
-              case "modified":
-                showPerson(person);
-                break;
-              default:
-                deletePerson(person);
-                break;
+            const gift = change.doc.data();
+            const giftId = change.doc.id;
+            gift.id = giftId;
+            if (selectedPersonId === personId) {
+              //update only onscreen gifts, rest are fetched directly from DB
+              switch (change.type) {
+                case "added":
+                  showGift(gift);
+                  break;
+                case "modified":
+                  showGift(gift);
+                  break;
+                default:
+                  deleteGift(gift);
+                  break;
+              }
             }
           }
         });
