@@ -431,7 +431,7 @@ async function deletePerson(person) {
       `.people [data-id="${person.id.toString()}"]`
     );
     if (li) {
-      li.outerHTML = "";
+      li.remove();
       if (li.classList.contains("active")) {
         document.querySelector(
           "ul.idea-list"
@@ -446,12 +446,12 @@ async function deletePerson(person) {
         await deleteDoc(doc(db, "people", personId));
         const name = li.querySelector("p.name").textContent;
         tellUser(`<p>Person "${name}" has been deleted.`);
-        // li.outerHTML = "";
-        // if (selectedPersonId === personId) {
-        //   document.querySelector(
-        //     "ul.idea-list"
-        //   ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
-        // }
+        li.remove();
+        if (selectedPersonId === personId) {
+          document.querySelector(
+            "ul.idea-list"
+          ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+        }
       } catch (err) {
         console.log(err.message);
       }
@@ -471,7 +471,7 @@ async function deleteGift(gift) {
       `.ideas [data-id="${gift.id.toString()}"]`
     );
     if (li) {
-      li.outerHTML = "";
+      li.remove();
     }
   } else {
     const li = document.querySelector(".delete");
@@ -480,13 +480,14 @@ async function deleteGift(gift) {
       try {
         await deleteDoc(doc(db, "gift-ideas", giftId));
         const name = li.querySelector("p.title").textContent;
+        li.remove();
+        hideOverlay();
         tellUser(`<p>Gift "${name}" has been deleted.`);
       } catch (err) {
         console.log(err.message);
       }
     }
   }
-  hideOverlay();
   //If it is the only gift, call buildIdeas with no gifts
   const checkIfOnlyGift = document.querySelector("ul.idea-list li");
   if (!checkIfOnlyGift) {
@@ -592,7 +593,7 @@ function addOnSnapShotPeople() {
               case "modified":
                 showPerson(person);
                 break;
-              default:
+              case "removed":
                 deletePerson(person);
                 break;
             }
@@ -638,7 +639,7 @@ function addOnSnapShotGifts(personId) {
                 case "modified":
                   showGift(gift);
                   break;
-                default:
+                case "removed":
                   deleteGift(gift);
                   break;
               }
