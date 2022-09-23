@@ -356,7 +356,6 @@ async function saveIdea() {
   const giftIdea = {
     idea: title,
     location,
-    bought: false,
     "person-id": personRef,
   };
 
@@ -391,7 +390,7 @@ async function saveIdea() {
 
 function showGift(giftIdea) {
   const liData = `<li data-id="${giftIdea.id}" class="idea">
-                    <label for="chk-uniqueid"><input type="checkbox" id="chk-uniqueid" /> Bought</label>
+                    <label for="chk-${giftIdea.id}"><input type="checkbox" id="chk-${giftIdea.id}" /> Bought</label>
                     <p class="title">${giftIdea.idea}</p>
                     <p class="location">${giftIdea.location}</p>
                     <i class="material-icons-outlined"id="btnEditIdea">edit</i>
@@ -510,7 +509,7 @@ function addBoughtListener() {
 
 async function boughtCheckbox(ev) {
   const checkbox = ev.target;
-  const id = checkbox.id.split("-")[1];
+  const id = checkbox.id.toString().split("-")[1];
   try {
     const docRef = doc(db, "gift-ideas", id);
     if (ev.target.checked) {
