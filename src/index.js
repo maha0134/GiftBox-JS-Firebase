@@ -218,23 +218,6 @@ function personClicked(ev) {
   }
 }
 
-// async function getIdeas(id) {
-//   //get an actual reference to the person document
-//   const personRef = doc(collection(db, "people"), id);
-//   const gifts = []; //to hold the giftIdeas
-//   //then run a query where the `person-id` property matches the reference for the person
-//   const docs = query(
-//     collection(db, "gift-ideas"),
-//     where("person-id", "==", personRef)
-//   );
-//   const querySnapshot = await getDocs(docs);
-//   querySnapshot.forEach((doc) => {
-//     const data = doc.data();
-//     const id = doc.id;
-//     gifts.push({ id, ...data });
-//   });
-//   buildIdeas(gifts);
-// }
 async function getIdeas(querySnapshot) {
   //get an actual reference to the person document
   // const personRef = doc(collection(db, "people"), id);
@@ -277,7 +260,6 @@ function buildIdeas(gifts) {
       .join("");
     document.querySelector(".idea");
   } else {
-    console.log;
     ul.innerHTML = `<p class="empty">Oops! Looks like there are no gifts added for the selected person</p>`;
   }
   addBoughtListener();
@@ -302,11 +284,9 @@ async function savePerson() {
       const documentRef = doc(db, "people", personId);
       await setDoc(documentRef, person);
       person.id = personId;
-      console.log("Document edited");
       tellUser(`<p>Person "${name}" edited.</p>`);
     } else {
       docRef = await addDoc(collection(db, "people"), person);
-      console.log("Document written with ID: ", docRef.id);
       tellUser(`<p>Person "${name}" added to database.</p>`);
       person.id = docRef.id;
     }
@@ -397,11 +377,9 @@ async function saveIdea() {
       const documentRef = doc(db, "gift-ideas", giftId);
       await setDoc(documentRef, giftIdea);
       giftIdea.id = giftId;
-      console.log("Document edited");
       tellUser(`<p>Gift Idea "${title}" edited.</p>`);
     } else {
       docRef = await addDoc(collection(db, "gift-ideas"), giftIdea);
-      console.log("Document written with ID: ", docRef.id);
       tellUser(`<p>Gift Idea "${title}" added to database.</p>`);
       giftIdea.id = docRef.id;
       giftIdea.bought = false;
