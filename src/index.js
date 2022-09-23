@@ -364,6 +364,10 @@ async function saveIdea() {
     const ref = document.querySelector(".ref");
     if (ref) {
       const giftId = ref.textContent.toString().split(":")[1];
+      const boughtCheckbox = document.querySelector(
+        `.idea input[id=chk-${giftId}]`
+      );
+      giftIdea.bought = boughtCheckbox.checked;
       const documentRef = doc(db, "gift-ideas", giftId);
       await setDoc(documentRef, giftIdea);
       giftIdea.id = giftId;
@@ -374,6 +378,7 @@ async function saveIdea() {
       console.log("Document written with ID: ", docRef.id);
       tellUser(`<p>Gift Idea "${title}" added to database.</p>`);
       giftIdea.id = docRef.id;
+      giftIdea.bought = false;
     }
 
     //1. clear the form fields
@@ -390,7 +395,11 @@ async function saveIdea() {
 
 function showGift(giftIdea) {
   const liData = `<li data-id="${giftIdea.id}" class="idea">
-                    <label for="chk-${giftIdea.id}"><input type="checkbox" id="chk-${giftIdea.id}" /> Bought</label>
+                    <label for="chk-${
+                      giftIdea.id
+                    }"><input type="checkbox" id="chk-${giftIdea.id}" ${
+    giftIdea.bought ? "checked" : ""
+  }/> Bought</label>
                     <p class="title">${giftIdea.idea}</p>
                     <p class="location">${giftIdea.location}</p>
                     <i class="material-icons-outlined"id="btnEditIdea">edit</i>
