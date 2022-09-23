@@ -11,6 +11,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  onSnapshot,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -42,6 +43,8 @@ let months = [
   "November",
   "December",
 ];
+
+let selectedPersonId;
 
 document.addEventListener("DOMContentLoaded", () => {
   //set up the dom events
@@ -96,7 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  getPeople();
+  addOnSnapShot();
+
+  // getPeople();
 });
 
 function hideOverlay() {
@@ -137,22 +142,40 @@ function showOverlay(ev) {
   if (id === "btnEditPerson") {
     const li = targetElement.closest("li");
     li.classList.add("editPerson");
-    editPersonLocal(li);
+    editPersonDialog(li);
     id = "dlgPerson";
   }
   if (id === "btnEditIdea") {
     const li = targetElement.closest("li");
     li.classList.add("editIdea");
-    editIdeaLocal(li);
+    editIdeaDialog(li);
     id = "dlgIdea";
   }
 
   document.getElementById(id).classList.add("active");
 }
 
-async function getPeople() {
+// async function getPeople() {
+//   const people = []; //to hold all the people from the collection
+//   const querySnapshot = await getDocs(collection(db, "people"));
+//   querySnapshot.forEach((doc) => {
+//     const data = doc.data();
+//     const id = doc.id;
+//     people.push({ id, ...data });
+//   });
+//   if (people.length > 0) {
+//     buildPeople(people);
+//     //highlights first person
+//     getIdeas(people[0].id);
+//   } else {
+//     const ul = document.querySelector("ul.person-list");
+//     ul.innerHTML = "";
+//     ul.innerHTML = `<p class="empty">Oops! Looks like there are no people added</p>`;
+//   }
+// }
+async function getPeople(querySnapshot) {
   const people = []; //to hold all the people from the collection
-  const querySnapshot = await getDocs(collection(db, "people"));
+  // const querySnapshot = await getDocs(collection(db, "people"));
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const id = doc.id;
@@ -180,6 +203,7 @@ function buildPeople(people) {
       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
       if (index == 0) {
         index += 1;
+        selectedPersonId = person.id;
         return `<li data-id="${person.id}" class="person active">
                 <span class="content"><p class="name">${person.name}</p>
                 <p class="dob">${dob}</p></span>
@@ -208,6 +232,7 @@ function personClicked(ev) {
     }
     clickedPerson.classList.add("active");
     const id = clickedPerson.dataset.id;
+    selectedPersonId = id;
     getIdeas(id);
   }
 }
@@ -276,9 +301,9 @@ async function savePerson() {
     const ref = document.querySelector(".ref");
     if (ref) {
       const personId = ref.textContent.toString().split(":")[1];
-      person.id = personId;
       const documentRef = doc(db, "people", personId);
       await setDoc(documentRef, person);
+      person.id = personId;
       console.log("Document edited");
       tellUser(`<p>Person "${name}" edited.</p>`);
     } else {
@@ -317,7 +342,10 @@ function tellUser(info) {
 function showPerson(person) {
   let li = document.querySelector(`[data-id="${person.id}"]`);
   const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
-  const liData = `<li data-id="${person.id}" class="person">
+  const liData = `<li data-id="${person.id}"
+            class="${
+              selectedPersonId === person.id ? "person active" : "person"
+            }">
             <span class="content"><p class="name">${person.name}</p>
             <p class="dob">${dob}</p></span>
             <span class="icons">
@@ -395,11 +423,11 @@ async function saveIdea() {
 
 function showGift(giftIdea) {
   const liData = `<li data-id="${giftIdea.id}" class="idea">
-                    <label for="chk-${
-                      giftIdea.id
-                    }"><input type="checkbox" id="chk-${giftIdea.id}" ${
-    giftIdea.bought ? "checked" : ""
-  }/> Bought</label>
+                    <label for="chk-${giftIdea.id}">
+                    <input type="checkbox" 
+                    id="chk-${giftIdea.id}" 
+                    ${giftIdea.bought ? "checked" : ""}/>
+                    Bought</label>
                     <p class="title">${giftIdea.idea}</p>
                     <p class="location">${giftIdea.location}</p>
                     <i class="material-icons-outlined"id="btnEditIdea">edit</i>
@@ -478,7 +506,7 @@ async function deleteGiftsFromDB(giftIdeas) {
   }
 }
 
-async function editPersonLocal(li) {
+async function editPersonDialog(li) {
   const id = li.dataset.id;
   const docRef = doc(db, "people", id);
   const docSnap = await getDoc(docRef);
@@ -493,7 +521,7 @@ async function editPersonLocal(li) {
   dialog.querySelector("#day").value = parseInt(data["birth-day"]);
 }
 
-async function editIdeaLocal(li) {
+async function editIdeaDialog(li) {
   const id = li.dataset.id;
   const docRef = doc(db, "gift-ideas", id);
   const docSnap = await getDoc(docRef);
@@ -533,4 +561,40 @@ async function boughtCheckbox(ev) {
   } catch (err) {
     console.log(err.message);
   }
+}
+
+function addOnSnapShot() {
+  let firstCall = true;
+  const unsubscribe = onSnapshot(
+    collection(db, "people"),
+    (snapshot) => {
+      if (firstCall) {
+        getPeople(snapshot);
+        firstCall = false;
+        console.log("am i building again?");
+      } else {
+        snapshot.docChanges().forEach((change) => {
+          // console.log(doc.metadata.hasPendingWrites ? "Local" : doc.data());
+          if (change.doc.metadata.hasPendingWrites) {
+            console.log("local change");
+          } else {
+            switch (change.type) {
+              case "added":
+                console.log("new doc added", change.doc.data());
+                break;
+              case "modified":
+                console.log("doc modified", change.doc.data());
+                break;
+              default:
+                console.log("doc deleted", change.doc.data());
+                break;
+            }
+          }
+        });
+      }
+    },
+    (error) => {
+      console.log("error listening to changes, please reload the page", error);
+    }
+  );
 }
