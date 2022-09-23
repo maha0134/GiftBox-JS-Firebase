@@ -440,20 +440,22 @@ async function deletePerson(person) {
     }
   } else {
     const li = document.querySelector(".delete");
-    const personId = li.dataset.id;
-    try {
-      await deleteDoc(doc(db, "people", personId));
-      const name = li.querySelector("p.name").textContent;
-      tellUser(`<p>Person "${name}" has been deleted.`);
-      li.outerHTML = "";
-      if (selectedPersonId === personId) {
-        document.querySelector(
-          "ul.idea-list"
-        ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+    if (li) {
+      const personId = li.dataset.id;
+      try {
+        await deleteDoc(doc(db, "people", personId));
+        const name = li.querySelector("p.name").textContent;
+        tellUser(`<p>Person "${name}" has been deleted.`);
+        li.outerHTML = "";
+        if (selectedPersonId === personId) {
+          document.querySelector(
+            "ul.idea-list"
+          ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+        }
+        hideOverlay();
+      } catch (err) {
+        console.log(err.message);
       }
-      hideOverlay();
-    } catch (err) {
-      console.log(err.message);
     }
   }
   const checkIfOnlyPerson = document.querySelector("ul.person-list li");
@@ -473,18 +475,20 @@ async function deleteGift(gift) {
     }
   } else {
     const li = document.querySelector(".delete");
-    const giftId = li.dataset.id;
-    try {
-      await deleteDoc(doc(db, "gift-ideas", giftId));
-      const name = li.querySelector("p.title").textContent;
-      tellUser(`<p>Gift "${name}" has been deleted.`);
-      li.outerHTML = "";
-      hideOverlay();
-      //If it is the only gift, call buildIdeas with no gifts
-    } catch (err) {
-      console.log(err.message);
+    if (li) {
+      const giftId = li.dataset.id;
+      try {
+        await deleteDoc(doc(db, "gift-ideas", giftId));
+        const name = li.querySelector("p.title").textContent;
+        tellUser(`<p>Gift "${name}" has been deleted.`);
+        li.outerHTML = "";
+        hideOverlay();
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   }
+  //If it is the only gift, call buildIdeas with no gifts
   const checkIfOnlyGift = document.querySelector("ul.idea-list li");
   if (!checkIfOnlyGift) {
     buildIdeas([]);
