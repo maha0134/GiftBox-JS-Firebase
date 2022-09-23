@@ -446,18 +446,18 @@ async function deletePerson(person) {
         await deleteDoc(doc(db, "people", personId));
         const name = li.querySelector("p.name").textContent;
         tellUser(`<p>Person "${name}" has been deleted.`);
-        li.outerHTML = "";
-        if (selectedPersonId === personId) {
-          document.querySelector(
-            "ul.idea-list"
-          ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
-        }
-        hideOverlay();
+        // li.outerHTML = "";
+        // if (selectedPersonId === personId) {
+        //   document.querySelector(
+        //     "ul.idea-list"
+        //   ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+        // }
       } catch (err) {
         console.log(err.message);
       }
     }
   }
+  hideOverlay();
   const checkIfOnlyPerson = document.querySelector("ul.person-list li");
   if (!checkIfOnlyPerson) {
     const ul = document.querySelector("ul.person-list");
@@ -481,13 +481,12 @@ async function deleteGift(gift) {
         await deleteDoc(doc(db, "gift-ideas", giftId));
         const name = li.querySelector("p.title").textContent;
         tellUser(`<p>Gift "${name}" has been deleted.`);
-        li.outerHTML = "";
-        hideOverlay();
       } catch (err) {
         console.log(err.message);
       }
     }
   }
+  hideOverlay();
   //If it is the only gift, call buildIdeas with no gifts
   const checkIfOnlyGift = document.querySelector("ul.idea-list li");
   if (!checkIfOnlyGift) {
