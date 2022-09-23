@@ -98,10 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
       deletePerson();
     }
   });
-
-  addOnSnapShot();
-
-  // getPeople();
+  addOnSnapShotPeople();
 });
 
 function hideOverlay() {
@@ -155,24 +152,6 @@ function showOverlay(ev) {
   document.getElementById(id).classList.add("active");
 }
 
-// async function getPeople() {
-//   const people = []; //to hold all the people from the collection
-//   const querySnapshot = await getDocs(collection(db, "people"));
-//   querySnapshot.forEach((doc) => {
-//     const data = doc.data();
-//     const id = doc.id;
-//     people.push({ id, ...data });
-//   });
-//   if (people.length > 0) {
-//     buildPeople(people);
-//     //highlights first person
-//     getIdeas(people[0].id);
-//   } else {
-//     const ul = document.querySelector("ul.person-list");
-//     ul.innerHTML = "";
-//     ul.innerHTML = `<p class="empty">Oops! Looks like there are no people added</p>`;
-//   }
-// }
 async function getPeople(querySnapshot) {
   const people = []; //to hold all the people from the collection
   // const querySnapshot = await getDocs(collection(db, "people"));
@@ -340,7 +319,7 @@ function tellUser(info) {
 }
 
 function showPerson(person) {
-  let li = document.querySelector(`[data-id="${person.id}"]`);
+  let li = document.querySelector(`.people [data-id="${person.id}"]`);
   const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
   const liData = `<li data-id="${person.id}"
             class="${
@@ -432,7 +411,7 @@ function showGift(giftIdea) {
                     <p class="location">${giftIdea.location}</p>
                     <i class="material-icons-outlined"id="btnEditIdea">edit</i>
                     <i class="material-icons-outlined" id="btnDelete">delete</i></li>`;
-  const li = document.querySelector(`[data-id="${giftIdea.id}"]`);
+  const li = document.querySelector(`.ideas [data-id="${giftIdea.id}"]`);
   if (li) {
     //update the gift Idea
     li.outerHTML = liData;
@@ -449,25 +428,41 @@ function showGift(giftIdea) {
   addBoughtListener();
 }
 
-async function deletePerson() {
-  const li = document.querySelector(".delete");
-  const personId = li.dataset.id;
-  try {
-    await deleteDoc(doc(db, "people", personId));
-    const name = li.querySelector("p.name").textContent;
-    tellUser(`<p>Person "${name}" has been deleted.`);
-    li.outerHTML = "";
-    const giftIdeas = document.querySelectorAll("ul.idea-list .idea");
-    deleteGiftsFromDB(giftIdeas);
-    const checkIfOnlyPerson = document.querySelector("ul.person-list li");
-    if (!checkIfOnlyPerson) {
-      const ul = document.querySelector("ul.person-list");
-      ul.innerHTML = "";
-      ul.innerHTML = `<p class="empty">Oops! Looks like there are no people added</p>`;
+async function deletePerson(person) {
+  if (person) {
+    const li = document.querySelector(
+      `.people [data-id="${person.id.toString()}"]`
+    );
+    if (li) {
+      li.outerHTML = "";
+      if (li.classList.contains("active")) {
+        document.querySelector(
+          "ul.idea-list"
+        ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+      }
     }
-    hideOverlay();
-  } catch (err) {
-    console.log(err.message);
+  } else {
+    const li = document.querySelector(".delete");
+    const personId = li.dataset.id;
+    try {
+      await deleteDoc(doc(db, "people", personId));
+      const name = li.querySelector("p.name").textContent;
+      tellUser(`<p>Person "${name}" has been deleted.`);
+      li.outerHTML = "";
+      if (selectedPersonId === personId) {
+        document.querySelector(
+          "ul.idea-list"
+        ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+      }
+      hideOverlay();
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
+  const checkIfOnlyPerson = document.querySelector("ul.person-list li");
+  if (!checkIfOnlyPerson) {
+    const ul = document.querySelector("ul.person-list");
+    ul.innerHTML = `<p class="empty">Oops! Looks like there are no people added</p>`;
   }
 }
 
@@ -489,22 +484,22 @@ async function deleteGift() {
     console.log(err.message);
   }
 }
-
-async function deleteGiftsFromDB(giftIdeas) {
-  document.querySelector(
-    "ul.idea-list"
-  ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
-  try {
-    giftIdeas.forEach((gift) => {
-      const giftId = gift.dataset.id;
-      //skipping await as it needs to be in top level module
-      //better done with batch operations
-      deleteDoc(doc(db, "gift-ideas", giftId));
-    });
-  } catch (err) {
-    console.log(err.message);
-  }
-}
+//Experimental code
+// async function deleteGiftsFromDB(giftIdeas) {
+//   document.querySelector(
+//     "ul.idea-list"
+//   ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
+//   // try {
+//   //   giftIdeas.forEach((gift) => {
+//   //     const giftId = gift.dataset.id;
+//   //     //skipping await as it needs to be in top level module
+//   //     //better done with batch operations
+//   //     deleteDoc(doc(db, "gift-ideas", giftId));
+//   //   });
+//   // } catch (err) {
+//   //   console.log(err.message);
+//   // }
+// }
 
 async function editPersonDialog(li) {
   const id = li.dataset.id;
@@ -563,7 +558,45 @@ async function boughtCheckbox(ev) {
   }
 }
 
-function addOnSnapShot() {
+function addOnSnapShotPeople() {
+  let firstCall = true;
+  const unsubscribe = onSnapshot(
+    collection(db, "people"),
+    (snapshot) => {
+      if (firstCall) {
+        getPeople(snapshot);
+        firstCall = false;
+      } else {
+        snapshot.docChanges().forEach((change) => {
+          //local changes will be handled directly
+          if (change.doc.metadata.hasPendingWrites) {
+            console.log("local change");
+          } else {
+            //only database side changes(includes if someone else changes stuff on website in parallel)
+            const person = change.doc.data();
+            const personId = change.doc.id;
+            person.id = personId;
+            switch (change.type) {
+              case "added":
+                showPerson(person);
+                break;
+              case "modified":
+                showPerson(person);
+                break;
+              default:
+                deletePerson(person);
+                break;
+            }
+          }
+        });
+      }
+    },
+    (error) => {
+      console.log("error listening to changes, please reload the page", error);
+    }
+  );
+}
+function addOnSnapShotGifts() {
   let firstCall = true;
   const unsubscribe = onSnapshot(
     collection(db, "people"),
@@ -574,19 +607,23 @@ function addOnSnapShot() {
         console.log("am i building again?");
       } else {
         snapshot.docChanges().forEach((change) => {
-          // console.log(doc.metadata.hasPendingWrites ? "Local" : doc.data());
+          //local changes will be handled directly
           if (change.doc.metadata.hasPendingWrites) {
             console.log("local change");
           } else {
+            //only database side changes(includes if someone else changes stuff on website in parallel)
+            const person = change.doc.data();
+            const personId = change.doc.id;
+            person.id = personId;
             switch (change.type) {
               case "added":
-                console.log("new doc added", change.doc.data());
+                showPerson(person);
                 break;
               case "modified":
-                console.log("doc modified", change.doc.data());
+                showPerson(person);
                 break;
               default:
-                console.log("doc deleted", change.doc.data());
+                deletePerson(person);
                 break;
             }
           }
