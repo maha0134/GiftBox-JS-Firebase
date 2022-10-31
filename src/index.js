@@ -13,6 +13,17 @@ import {
   updateDoc,
   onSnapshot,
 } from "firebase/firestore";
+//import for authentication
+import {
+  getAuth,
+  GithubAuthProvider,
+  signInWithPopup,
+  signInWithCredential,
+  signOut,
+  setPersistence,
+  browserSessionPersistence,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCmOhYGnXG8YgYuBic1RxfAt7vNLxMGPnA",
@@ -27,6 +38,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
+
+//setting up authentication
+const auth = getAuth(app);
+const provider = new GithubAuthProvider();
+
+provider.setCustomParameters({
+  allow_signup: "true",
+});
 
 //global variables
 let months = [
@@ -60,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("btnAddPerson")
     .addEventListener("click", showOverlay);
+
   document.getElementById("btnAddIdea").addEventListener("click", (ev) => {
     if (document.querySelector("ul.person-list .person.active")) {
       showOverlay(ev);
@@ -98,7 +118,13 @@ document.addEventListener("DOMContentLoaded", () => {
       deletePerson();
     }
   });
-  addOnSnapShotPeople();
+  //Login and logout buttons
+  document.getElementById("authLogin").addEventListener("click", attemptLogin);
+  document
+    .getElementById("authLogout")
+    .addEventListener("click", logoutButtonClicked);
+
+  setupAuthentication(addOnSnapShotPeople);
 });
 
 function hideOverlay() {
@@ -219,15 +245,8 @@ function personClicked(ev) {
 }
 
 async function getIdeas(querySnapshot) {
-  //get an actual reference to the person document
-  // const personRef = doc(collection(db, "people"), id);
   const gifts = []; //to hold the giftIdeas
-  //then run a query where the `person-id` property matches the reference for the person
-  // const docs = query(
-  //   collection(db, "gift-ideas"),
-  //   where("person-id", "==", personRef)
-  // );
-  // const querySnapshot = await getDocs(docs);
+
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const id = doc.id;
@@ -494,22 +513,6 @@ async function deleteGift(gift) {
     buildIdeas([]);
   }
 }
-//Experimental code
-// async function deleteGiftsFromDB(giftIdeas) {
-//   document.querySelector(
-//     "ul.idea-list"
-//   ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
-//   // try {
-//   //   giftIdeas.forEach((gift) => {
-//   //     const giftId = gift.dataset.id;
-//   //     //skipping await as it needs to be in top level module
-//   //     //better done with batch operations
-//   //     deleteDoc(doc(db, "gift-ideas", giftId));
-//   //   });
-//   // } catch (err) {
-//   //   console.log(err.message);
-//   // }
-// }
 
 async function editPersonDialog(li) {
   const id = li.dataset.id;
@@ -652,4 +655,61 @@ function addOnSnapShotGifts(personId) {
       console.log("error listening to changes, please reload the page", error);
     }
   );
+}
+
+function attemptLogin() {
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      const credential = GithubAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      const user = result.user;
+      console.log(user);
+      // console.log(credential);
+      // console.log(token);
+      // console.log(user);
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      const credential = GithubAuthProvider.credentialFromError(error);
+      console.log(errorCode, errorMessage, credential);
+    });
+}
+
+function logoutButtonClicked(ev) {
+  signOut(auth)
+    .then(() => {
+      ev.target.classList.remove("visible");
+      document.getElementById("authLogin").classList.add("visible");
+    })
+    .catch((error) => console.log("error signing out" + error));
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById("authLogin").classList.remove("visible");
+    document.getElementById("authLogout").classList.add("visible");
+  } else {
+    document.getElementById("authLogin").classList.add("visible");
+    document.getElementById("authLogout").classList.remove("visible");
+  }
+});
+
+function setupAuthentication(callback) {
+  setPersistence(auth, browserSessionPersistence).then(() => {
+    const user = auth.currentUser;
+    if (user !== null) {
+      console.log(user);
+      // validateWithToken(callback,token)
+    }
+  });
+}
+
+function validateWithToken(token) {
+  const credential = GithubAuthProvider.credential(token);
+  signInWithCredential(auth, credential)
+    .then((result) => {
+      // callback();
+    })
+    .catch((err) => console.log(err));
 }

@@ -30,17 +30,43 @@ header {
   background-color: var(--color-banner);
   border-bottom: 0.1rem solid var(--color-primary-text);
   box-shadow: 0 0 7px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 header h1 {
   font-size: 4rem;
   font-weight: 500;
   color: var(--color-text-dark);
-  /* text-shadow: 2px 2px 2px var(--color-primary-text); */
 }
 header h2 {
   font-size: 2.5rem;
   font-weight: 300;
   color: var(--color-banner-text);
+}
+header button{
+  display: flex;
+  font-size: 1.5rem;
+  padding: 0.35em 0.95em;
+  border-radius: 3rem;
+  background-color: var(--color-icons);
+  box-shadow: inset 0 0 4px black;
+  border: none;
+  color: white;
+  transition: 0.25s linear;
+  cursor: pointer;
+  transform: translate(-100rem,-100rem);
+  display: none;
+}
+
+button.visible{
+transform: translate(0);
+display: inline-block;
+}
+
+header button:hover,
+header button:focus-visible{
+  background-color: var(--color-accent-dark);
 }
 main {
   display: flex;
@@ -287,3 +313,4 @@ dialog button:focus {
   background-color: whitesmoke;
   border-radius: 1rem;
 }
+
