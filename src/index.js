@@ -85,7 +85,7 @@ function addListeners() {
   });
 
   document.getElementById("btnAddIdea").addEventListener("click", (ev) => {
-    if (document.querySelector("ul.person-list .person.active")) {
+    if (document.querySelector("ul.person-list .person.active") && loggedIn) {
       showOverlay(ev);
     }
   });
@@ -665,8 +665,7 @@ function attemptLogin() {
       const credential = GithubAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
       sessionStorage.setItem("token", token);
-      const user = result.user;
-      console.log(user, token, credential);
+      // const user = result.user;
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -687,19 +686,33 @@ function logout() {
 onAuthStateChanged(auth, (user) => {
   const loginMessage = document.querySelector(".login-message");
   if (user) {
+    //if user is logged in
+    loggedIn = true;
+    //toggle button
     document.getElementById("authLogin").classList.remove("visible");
     document.getElementById("authLogout").classList.add("visible");
-    loggedIn = true;
+
+    //build lists
     addOnSnapShotPeople();
+
+    //remove message prompting user to login
     loginMessage.textContent = "";
     loginMessage.classList.remove("visible");
   } else {
+    //if user is logged out
     loggedIn = false;
+    //toggle button
     document.getElementById("authLogin").classList.add("visible");
     document.getElementById("authLogout").classList.remove("visible");
+
+    //clear people as well as gifts
     document.querySelector(".person-list").replaceChildren();
     document.querySelector(".idea-list").replaceChildren();
+
+    //clear session storage
     sessionStorage.clear();
+
+    //add prompt message on screen asking user to login
     loginMessage.textContent = "Please login to see your gifts.";
     loginMessage.classList.add("visible");
   }
@@ -708,9 +721,11 @@ onAuthStateChanged(auth, (user) => {
 function setupAuthentication() {
   setPersistence(auth, browserSessionPersistence).then(() => {
     const user = auth.currentUser;
+    //if user exists, validate token
     if (user !== null) {
       const token = sessionStorage.getItem("token");
-      return validateWithToken(token);
+      if (token) return validateWithToken(token);
+      if (!token) return logout();
     }
   });
 }
@@ -721,5 +736,8 @@ function validateWithToken(token) {
     .then((result) => {
       console.log("authenticated with signInWithCredential");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      logout();
+      console.log(err);
+    });
 }
