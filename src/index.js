@@ -64,9 +64,11 @@ let months = [
 ];
 
 let selectedPersonId;
+let loggedIn;
 
-document.addEventListener("DOMContentLoaded", () => {
-  //set up the dom events
+document.addEventListener("DOMContentLoaded", addListeners);
+
+function addListeners() {
   //Cancel Buttons
   document
     .getElementById("btnCancelPerson")
@@ -76,9 +78,11 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", hideOverlay);
 
   //Add Buttons
-  document
-    .getElementById("btnAddPerson")
-    .addEventListener("click", showOverlay);
+  document.getElementById("btnAddPerson").addEventListener("click", (ev) => {
+    if (loggedIn) {
+      showOverlay(ev);
+    }
+  });
 
   document.getElementById("btnAddIdea").addEventListener("click", (ev) => {
     if (document.querySelector("ul.person-list .person.active")) {
@@ -120,12 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   //Login and logout buttons
   document.getElementById("authLogin").addEventListener("click", attemptLogin);
-  document
-    .getElementById("authLogout")
-    .addEventListener("click", logoutButtonClicked);
+  document.getElementById("authLogout").addEventListener("click", logout);
 
-  setupAuthentication(addOnSnapShotPeople);
-});
+  setupAuthentication();
+}
 
 function hideOverlay() {
   document.querySelector(".overlay").classList.remove("active");
@@ -662,11 +664,9 @@ function attemptLogin() {
     .then((result) => {
       const credential = GithubAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
+      sessionStorage.setItem("token", token);
       const user = result.user;
-      console.log(user);
-      // console.log(credential);
-      // console.log(token);
-      // console.log(user);
+      console.log(user, token, credential);
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -676,31 +676,41 @@ function attemptLogin() {
     });
 }
 
-function logoutButtonClicked(ev) {
+function logout() {
   signOut(auth)
     .then(() => {
-      ev.target.classList.remove("visible");
-      document.getElementById("authLogin").classList.add("visible");
+      console.log("user logged out");
     })
     .catch((error) => console.log("error signing out" + error));
 }
 
 onAuthStateChanged(auth, (user) => {
+  const loginMessage = document.querySelector(".login-message");
   if (user) {
     document.getElementById("authLogin").classList.remove("visible");
     document.getElementById("authLogout").classList.add("visible");
+    loggedIn = true;
+    addOnSnapShotPeople();
+    loginMessage.textContent = "";
+    loginMessage.classList.remove("visible");
   } else {
+    loggedIn = false;
     document.getElementById("authLogin").classList.add("visible");
     document.getElementById("authLogout").classList.remove("visible");
+    document.querySelector(".person-list").replaceChildren();
+    document.querySelector(".idea-list").replaceChildren();
+    sessionStorage.clear();
+    loginMessage.textContent = "Please login to see your gifts.";
+    loginMessage.classList.add("visible");
   }
 });
 
-function setupAuthentication(callback) {
+function setupAuthentication() {
   setPersistence(auth, browserSessionPersistence).then(() => {
     const user = auth.currentUser;
     if (user !== null) {
-      console.log(user);
-      // validateWithToken(callback,token)
+      const token = sessionStorage.getItem("token");
+      return validateWithToken(token);
     }
   });
 }
@@ -709,7 +719,7 @@ function validateWithToken(token) {
   const credential = GithubAuthProvider.credential(token);
   signInWithCredential(auth, credential)
     .then((result) => {
-      // callback();
+      console.log("authenticated with signInWithCredential");
     })
     .catch((err) => console.log(err));
 }

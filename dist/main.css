@@ -44,7 +44,7 @@ header h2 {
   font-weight: 300;
   color: var(--color-banner-text);
 }
-header button{
+header button {
   display: flex;
   font-size: 1.5rem;
   padding: 0.35em 0.95em;
@@ -55,17 +55,17 @@ header button{
   color: white;
   transition: 0.25s linear;
   cursor: pointer;
-  transform: translate(-100rem,-100rem);
+  transform: translate(-100rem, -100rem);
   display: none;
 }
 
-button.visible{
-transform: translate(0);
-display: inline-block;
+button.visible {
+  transform: translate(0);
+  display: inline-block;
 }
 
 header button:hover,
-header button:focus-visible{
+header button:focus-visible {
   background-color: var(--color-accent-dark);
 }
 main {
@@ -73,8 +73,18 @@ main {
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
+  flex-wrap: wrap;
   margin: 1rem auto 0;
-  width: min(100%, 80em);
+  width: min(100%, 60em);
+}
+.login-message.visible {
+  background-color: var(--color-accent);
+  /* position: absolute; */
+  width: 100%;
+  text-align: center;
+  font-size: 1.25rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
 }
 main > section {
   flex-basis: 50%;
@@ -120,7 +130,7 @@ section h2 > button {
   -o-border-radius: var(--radii);
 }
 section h2 > button:hover,
-section h2 > button:focus {
+section h2 > button:focus-visible {
   background-color: var(--color-accent-dark);
   color: whitesmoke;
 }
@@ -289,7 +299,7 @@ dialog button {
   cursor: pointer;
 }
 dialog button:hover,
-dialog button:focus {
+dialog button:focus-visible {
   background-color: var(--color-accent-dark);
   color: whitesmoke;
 }
@@ -313,4 +323,3 @@ dialog button:focus {
   background-color: whitesmoke;
   border-radius: 1rem;
 }
-
