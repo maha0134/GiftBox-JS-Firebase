@@ -73,8 +73,6 @@ let loggedIn;
 document.addEventListener("DOMContentLoaded", addListeners);
 
 function addListeners() {
-  console.log("loaded");
-  // loggedIn = false;
   //Cancel Buttons
   document
     .getElementById("btnCancelPerson")
@@ -683,7 +681,6 @@ function attemptLogin() {
 function logout() {
   signOut(auth)
     .then(() => {
-      console.log("user logged out");
       logIn(false);
     })
     .catch((error) => {
@@ -695,6 +692,8 @@ onAuthStateChanged(auth, (user) => {
   const token = sessionStorage.getItem("token");
   if (user && token) {
     validateWithToken(token);
+  } else if (!user) {
+    logout();
   }
 });
 
@@ -727,7 +726,6 @@ function logIn(status) {
     loginMessage.textContent = "";
     loginMessage.classList.remove("visible");
   } else {
-    console.log("user logged out inside auth");
     //if user is logged out
     loggedIn = false;
     //toggle button
