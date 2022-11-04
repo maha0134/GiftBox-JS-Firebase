@@ -43,10 +43,6 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GithubAuthProvider();
 
-setPersistence(auth, browserSessionPersistence).catch((err) =>
-  console.log("failed to set Persistence to Session storage:", err)
-);
-
 provider.setCustomParameters({
   allow_signup: "true",
 });
@@ -662,20 +658,30 @@ function addOnSnapShotGifts(personId) {
 }
 
 function attemptLogin() {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      const credential = GithubAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
-      sessionStorage.setItem("token", token);
-      logIn(true);
-      // const user = result.user;
+  setPersistence(auth, browserSessionPersistence)
+    .then(() => {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const credential = GithubAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          sessionStorage.setItem("token", token);
+          logIn(true);
+          // const user = result.user;
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          const credential = GithubAuthProvider.credentialFromError(error);
+          console.log(errorCode, errorMessage, credential);
+        });
     })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      const credential = GithubAuthProvider.credentialFromError(error);
-      console.log(errorCode, errorMessage, credential);
-    });
+    .catch((err) =>
+      console.log(
+        "failed to set Persistence to Session storage:",
+        err.code,
+        err.message
+      )
+    );
 }
 
 function logout() {
