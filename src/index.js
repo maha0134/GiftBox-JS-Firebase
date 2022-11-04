@@ -43,6 +43,10 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GithubAuthProvider();
 
+setPersistence(auth, browserSessionPersistence).catch((err) =>
+  console.log("failed to set Persistence to Session storage:", err)
+);
+
 provider.setCustomParameters({
   allow_signup: "true",
 });
@@ -69,6 +73,8 @@ let loggedIn;
 document.addEventListener("DOMContentLoaded", addListeners);
 
 function addListeners() {
+  console.log("loaded");
+  // loggedIn = false;
   //Cancel Buttons
   document
     .getElementById("btnCancelPerson")
@@ -125,8 +131,6 @@ function addListeners() {
   //Login and logout buttons
   document.getElementById("authLogin").addEventListener("click", attemptLogin);
   document.getElementById("authLogout").addEventListener("click", logout);
-
-  setupAuthentication();
 }
 
 function hideOverlay() {
@@ -665,6 +669,7 @@ function attemptLogin() {
       const credential = GithubAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
       sessionStorage.setItem("token", token);
+      logIn(true);
       // const user = result.user;
     })
     .catch((error) => {
@@ -679,13 +684,36 @@ function logout() {
   signOut(auth)
     .then(() => {
       console.log("user logged out");
+      logIn(false);
     })
-    .catch((error) => console.log("error signing out" + error));
+    .catch((error) => {
+      console.log("error signing out" + error);
+    });
 }
 
 onAuthStateChanged(auth, (user) => {
+  const token = sessionStorage.getItem("token");
+  if (user && token) {
+    validateWithToken(token);
+  }
+});
+
+function validateWithToken(token) {
+  const credential = GithubAuthProvider.credential(token);
+  signInWithCredential(auth, credential)
+    .then((result) => {
+      console.log("authenticated with signInWithCredential");
+      logIn(true);
+    })
+    .catch((err) => {
+      logout();
+      console.log(err);
+    });
+}
+
+function logIn(status) {
   const loginMessage = document.querySelector(".login-message");
-  if (user) {
+  if (status) {
     //if user is logged in
     loggedIn = true;
     //toggle button
@@ -699,6 +727,7 @@ onAuthStateChanged(auth, (user) => {
     loginMessage.textContent = "";
     loginMessage.classList.remove("visible");
   } else {
+    console.log("user logged out inside auth");
     //if user is logged out
     loggedIn = false;
     //toggle button
@@ -716,28 +745,4 @@ onAuthStateChanged(auth, (user) => {
     loginMessage.textContent = "Please login to see your gifts.";
     loginMessage.classList.add("visible");
   }
-});
-
-function setupAuthentication() {
-  setPersistence(auth, browserSessionPersistence).then(() => {
-    const user = auth.currentUser;
-    //if user exists, validate token
-    if (user !== null) {
-      const token = sessionStorage.getItem("token");
-      if (token) return validateWithToken(token);
-      if (!token) return logout();
-    }
-  });
-}
-
-function validateWithToken(token) {
-  const credential = GithubAuthProvider.credential(token);
-  signInWithCredential(auth, credential)
-    .then((result) => {
-      console.log("authenticated with signInWithCredential");
-    })
-    .catch((err) => {
-      logout();
-      console.log(err);
-    });
 }
