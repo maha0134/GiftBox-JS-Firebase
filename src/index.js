@@ -13,6 +13,17 @@ import {
   updateDoc,
   onSnapshot,
 } from "firebase/firestore";
+//import for authentication
+import {
+  getAuth,
+  GithubAuthProvider,
+  signInWithPopup,
+  signInWithCredential,
+  signOut,
+  setPersistence,
+  browserSessionPersistence,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCmOhYGnXG8YgYuBic1RxfAt7vNLxMGPnA",
@@ -27,6 +38,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // get a reference to the database
 const db = getFirestore(app);
+
+//setting up authentication
+const auth = getAuth(app);
+const provider = new GithubAuthProvider();
+
+provider.setCustomParameters({
+  allow_signup: "true",
+});
 
 //global variables
 let months = [
@@ -45,9 +64,11 @@ let months = [
 ];
 
 let selectedPersonId;
+let loggedIn;
 
-document.addEventListener("DOMContentLoaded", () => {
-  //set up the dom events
+document.addEventListener("DOMContentLoaded", addListeners);
+
+function addListeners() {
   //Cancel Buttons
   document
     .getElementById("btnCancelPerson")
@@ -57,11 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("click", hideOverlay);
 
   //Add Buttons
-  document
-    .getElementById("btnAddPerson")
-    .addEventListener("click", showOverlay);
+  document.getElementById("btnAddPerson").addEventListener("click", (ev) => {
+    if (loggedIn) {
+      showOverlay(ev);
+    }
+  });
+
   document.getElementById("btnAddIdea").addEventListener("click", (ev) => {
-    if (document.querySelector("ul.person-list .person.active")) {
+    if (document.querySelector("ul.person-list .person.active") && loggedIn) {
       showOverlay(ev);
     }
   });
@@ -98,8 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
       deletePerson();
     }
   });
-  addOnSnapShotPeople();
-});
+  //Login and logout buttons
+  document.getElementById("authLogin").addEventListener("click", attemptLogin);
+  document.getElementById("authLogout").addEventListener("click", logout);
+}
 
 function hideOverlay() {
   document.querySelector(".overlay").classList.remove("active");
@@ -112,12 +138,12 @@ function hideOverlay() {
   document.getElementById("location").value = "";
 
   if (editPerson) {
-    document.querySelector(".ref").outerHTML = "";
+    document.querySelector(".ref").classList.remove("ref");
     editPerson.classList.remove("editPerson");
   }
   const editIdea = document.querySelector(".editIdea");
   if (editIdea) {
-    document.querySelector(".ref").outerHTML = "";
+    document.querySelector(".ref").classList.remove("ref");
     editIdea.classList.remove("editIdea");
   }
 
@@ -219,15 +245,8 @@ function personClicked(ev) {
 }
 
 async function getIdeas(querySnapshot) {
-  //get an actual reference to the person document
-  // const personRef = doc(collection(db, "people"), id);
   const gifts = []; //to hold the giftIdeas
-  //then run a query where the `person-id` property matches the reference for the person
-  // const docs = query(
-  //   collection(db, "gift-ideas"),
-  //   where("person-id", "==", personRef)
-  // );
-  // const querySnapshot = await getDocs(docs);
+
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     const id = doc.id;
@@ -280,7 +299,7 @@ async function savePerson() {
     let docRef;
     const ref = document.querySelector(".ref");
     if (ref) {
-      const personId = ref.textContent.toString().split(":")[1];
+      const personId = ref.dataset.id;
       const documentRef = doc(db, "people", personId);
       await setDoc(documentRef, person);
       person.id = personId;
@@ -296,9 +315,6 @@ async function savePerson() {
     document.getElementById("day").value = "";
     //2. hide the dialog and the overlay
     hideOverlay();
-    //3. display a message to the user about success
-
-    //4. ADD the new HTML to the <ul> using the new object
     showPerson(person);
   } catch (err) {
     console.error("Error adding document: ", err);
@@ -369,7 +385,7 @@ async function saveIdea() {
     let docRef;
     const ref = document.querySelector(".ref");
     if (ref) {
-      const giftId = ref.textContent.toString().split(":")[1];
+      const giftId = ref.dataset.id;
       const boughtCheckbox = document.querySelector(
         `.idea input[id=chk-${giftId}]`
       );
@@ -494,22 +510,6 @@ async function deleteGift(gift) {
     buildIdeas([]);
   }
 }
-//Experimental code
-// async function deleteGiftsFromDB(giftIdeas) {
-//   document.querySelector(
-//     "ul.idea-list"
-//   ).innerHTML = `<p class="empty">Please select a person to show gifts</p>`;
-//   // try {
-//   //   giftIdeas.forEach((gift) => {
-//   //     const giftId = gift.dataset.id;
-//   //     //skipping await as it needs to be in top level module
-//   //     //better done with batch operations
-//   //     deleteDoc(doc(db, "gift-ideas", giftId));
-//   //   });
-//   // } catch (err) {
-//   //   console.log(err.message);
-//   // }
-// }
 
 async function editPersonDialog(li) {
   const id = li.dataset.id;
@@ -517,10 +517,8 @@ async function editPersonDialog(li) {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgPerson");
-  const refPara = document.createElement("p");
-  refPara.textContent = `Person id:${id}`;
-  refPara.classList.add("ref");
-  dialog.insertBefore(refPara, dialog.children[1]);
+  dialog.classList.add("ref");
+  dialog.dataset.id = id;
   dialog.querySelector("#name").value = data.name;
   dialog.querySelector("#month").value = parseInt(data["birth-month"]);
   dialog.querySelector("#day").value = parseInt(data["birth-day"]);
@@ -532,10 +530,8 @@ async function editIdeaDialog(li) {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgIdea");
-  const refPara = document.createElement("p");
-  refPara.textContent = `Gift Idea id:${id}`;
-  refPara.classList.add("ref");
-  dialog.insertBefore(refPara, dialog.children[1]);
+  dialog.classList.add("ref");
+  dialog.dataset.id = id;
   dialog.querySelector("#title").value = data.idea;
   dialog.querySelector("#location").value = data.location;
 }
@@ -652,4 +648,98 @@ function addOnSnapShotGifts(personId) {
       console.log("error listening to changes, please reload the page", error);
     }
   );
+}
+
+function attemptLogin() {
+  setPersistence(auth, browserSessionPersistence)
+    .then(() => {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const credential = GithubAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          sessionStorage.setItem("token", token);
+          logIn(true);
+          // const user = result.user;
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          const credential = GithubAuthProvider.credentialFromError(error);
+          console.log(errorCode, errorMessage, credential);
+        });
+    })
+    .catch((err) =>
+      console.log(
+        "failed to set Persistence to Session storage:",
+        err.code,
+        err.message
+      )
+    );
+}
+
+function logout() {
+  signOut(auth)
+    .then(() => {
+      logIn(false);
+    })
+    .catch((error) => {
+      console.log("error signing out" + error);
+    });
+}
+
+onAuthStateChanged(auth, (user) => {
+  const token = sessionStorage.getItem("token");
+  if (user && token) {
+    validateWithToken(token);
+  } else if (!user) {
+    logout();
+  }
+});
+
+function validateWithToken(token) {
+  const credential = GithubAuthProvider.credential(token);
+  signInWithCredential(auth, credential)
+    .then((result) => {
+      console.log("authenticated with signInWithCredential");
+      logIn(true);
+    })
+    .catch((err) => {
+      logout();
+      console.log(err);
+    });
+}
+
+function logIn(status) {
+  const loginMessage = document.querySelector(".login-message");
+  if (status) {
+    //if user is logged in
+    loggedIn = true;
+    //toggle button
+    document.getElementById("authLogin").classList.remove("visible");
+    document.getElementById("authLogout").classList.add("visible");
+
+    //build lists
+    addOnSnapShotPeople();
+
+    //remove message prompting user to login
+    loginMessage.textContent = "";
+    loginMessage.classList.remove("visible");
+  } else {
+    //if user is logged out
+    loggedIn = false;
+    //toggle button
+    document.getElementById("authLogin").classList.add("visible");
+    document.getElementById("authLogout").classList.remove("visible");
+
+    //clear people as well as gifts
+    document.querySelector(".person-list").replaceChildren();
+    document.querySelector(".idea-list").replaceChildren();
+
+    //clear session storage
+    sessionStorage.clear();
+
+    //add prompt message on screen asking user to login
+    loginMessage.textContent = "Please login to see your gifts.";
+    loginMessage.classList.add("visible");
+  }
 }
