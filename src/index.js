@@ -138,12 +138,12 @@ function hideOverlay() {
   document.getElementById("location").value = "";
 
   if (editPerson) {
-    document.querySelector(".ref").outerHTML = "";
+    document.querySelector(".ref").classList.remove("ref");
     editPerson.classList.remove("editPerson");
   }
   const editIdea = document.querySelector(".editIdea");
   if (editIdea) {
-    document.querySelector(".ref").outerHTML = "";
+    document.querySelector(".ref").classList.remove("ref");
     editIdea.classList.remove("editIdea");
   }
 
@@ -299,7 +299,7 @@ async function savePerson() {
     let docRef;
     const ref = document.querySelector(".ref");
     if (ref) {
-      const personId = ref.textContent.toString().split(":")[1];
+      const personId = ref.dataset.id;
       const documentRef = doc(db, "people", personId);
       await setDoc(documentRef, person);
       person.id = personId;
@@ -315,9 +315,6 @@ async function savePerson() {
     document.getElementById("day").value = "";
     //2. hide the dialog and the overlay
     hideOverlay();
-    //3. display a message to the user about success
-
-    //4. ADD the new HTML to the <ul> using the new object
     showPerson(person);
   } catch (err) {
     console.error("Error adding document: ", err);
@@ -388,7 +385,7 @@ async function saveIdea() {
     let docRef;
     const ref = document.querySelector(".ref");
     if (ref) {
-      const giftId = ref.textContent.toString().split(":")[1];
+      const giftId = ref.dataset.id;
       const boughtCheckbox = document.querySelector(
         `.idea input[id=chk-${giftId}]`
       );
@@ -520,10 +517,8 @@ async function editPersonDialog(li) {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgPerson");
-  const refPara = document.createElement("p");
-  refPara.textContent = `Person id:${id}`;
-  refPara.classList.add("ref");
-  dialog.insertBefore(refPara, dialog.children[1]);
+  dialog.classList.add("ref");
+  dialog.dataset.id = id;
   dialog.querySelector("#name").value = data.name;
   dialog.querySelector("#month").value = parseInt(data["birth-month"]);
   dialog.querySelector("#day").value = parseInt(data["birth-day"]);
@@ -535,10 +530,8 @@ async function editIdeaDialog(li) {
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
   const dialog = document.getElementById("dlgIdea");
-  const refPara = document.createElement("p");
-  refPara.textContent = `Gift Idea id:${id}`;
-  refPara.classList.add("ref");
-  dialog.insertBefore(refPara, dialog.children[1]);
+  dialog.classList.add("ref");
+  dialog.dataset.id = id;
   dialog.querySelector("#title").value = data.idea;
   dialog.querySelector("#location").value = data.location;
 }
