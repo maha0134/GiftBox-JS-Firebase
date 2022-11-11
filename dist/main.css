@@ -311,20 +311,18 @@ dialog button:focus-visible {
 :is(dialog, h2) button:active {
   background-color: var(--color-banner);
 }
-
+.confirm {
+  transition: 0.25s linear;
+}
 .confirm.onscreen {
-  position: fixed;
-  top: 0;
-  height: 100vh;
-  width: 100vw;
+  margin-top: 1.5rem;
   display: flex;
   justify-content: center;
-  align-items: center;
-  background-color: hsla(0, 0%, 7%, 0.9);
 }
 .confirm.onscreen p {
   font-size: 1.5rem;
-  padding: 5rem;
-  background-color: whitesmoke;
+  padding: 1.5rem 5rem;
+  color: white;
+  background-color: var(--color-icons);
   border-radius: 1rem;
 }
