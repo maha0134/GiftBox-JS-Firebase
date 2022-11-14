@@ -14,18 +14,10 @@
   </head>
   <body>
     <header>
-      <div class="headings">
-        <h1>Fire-Giftr</h1>
-        <h2>All Gifts Must Go!</h2>
-      </div>
-      <button id="authLogin" class="visible">Login</button>
-      <button id="authLogout">Logout</button>
+      <h1>Fire-Giftr</h1>
+      <h2>All Gifts Must Go!</h2>
     </header>
-    <section class="confirm">
-      <!-- Confirmation of action goes here -->
-    </section>
     <main>
-      <div class="login-message"></div>
       <section class="people">
         <h2>People <button id="btnAddPerson">Add Person</button></h2>
         <ul class="person-list"></ul>
@@ -35,11 +27,10 @@
         <ul class="idea-list"></ul>
       </section>
     </main>
-
     <section class="overlay">
       <dialog id="dlgPerson" class="">
         <h2>Add/Edit Person</h2>
-        <div>
+        <p>
           <label for="name">Name:</label>
           <input
             type="text"
@@ -47,8 +38,8 @@
             name="name"
             placeholder="person's name"
           />
-        </div>
-        <div>
+        </p>
+        <p>
           <label for="month">Birth Month:</label>
           <input
             type="number"
@@ -58,19 +49,19 @@
             max="12"
             value="1"
           />
-        </div>
-        <div>
+        </p>
+        <p>
           <label for="day">Birth Day:</label>
           <input type="number" id="day" name="day" min="1" max="31" value="1" />
-        </div>
-        <div>
+        </p>
+        <p>
           <button id="btnCancelPerson">Cancel</button>
           <button id="btnSavePerson">Save</button>
-        </div>
+        </p>
       </dialog>
       <dialog id="dlgIdea" class="">
         <h2>Add/Edit Gift Idea</h2>
-        <div>
+        <p>
           <label for="title">Title:</label>
           <input
             type="text"
@@ -78,8 +69,8 @@
             name="title"
             placeholder="describe the gift"
           />
-        </div>
-        <div>
+        </p>
+        <p>
           <label for="location">Location:</label>
           <input
             type="text"
@@ -87,20 +78,23 @@
             name="location"
             placeholder="store or website"
           />
-        </div>
-        <div>
+        </p>
+        <p>
           <button id="btnCancelIdea">Cancel</button>
           <button id="btnSaveIdea">Save</button>
-        </div>
+        </p>
       </dialog>
       <dialog id="dlgDelete">
         <h2>Confirm Delete</h2>
         <p>Are you sure you want to delete this item?</p>
-        <div>
+        <p>
           <button id="btnCancelDelete">Cancel</button>
           <button id="btnConfirmDelete">Delete</button>
-        </div>
+        </p>
       </dialog>
+    </section>
+    <section class="confirm">
+      <!-- Confirmation of action goes here -->
     </section>
   </body>
 </html>
