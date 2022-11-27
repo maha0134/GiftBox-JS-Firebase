@@ -566,9 +566,10 @@ async function boughtCheckbox(ev) {
 
 function addOnSnapShotPeople(userID) {
   let firstCall = true;
+  const userRef = doc(db, "users", userID);
   const snapshotQuery = query(
     collection(db, "people"),
-    where("owner", "==", userID)
+    where("owner", "==", userRef)
   );
   const unsubscribe = onSnapshot(
     // collection(db, "people"),
@@ -706,7 +707,7 @@ function validateWithToken(token) {
   signInWithCredential(auth, credential)
     .then((result) => {
       console.log("authenticated with signInWithCredential");
-      logIn(true);
+      logIn(true, result.user.uid);
     })
     .catch((err) => {
       logout();
@@ -725,6 +726,7 @@ function logIn(status, userID) {
 
     //build lists
     addOnSnapShotPeople(userID);
+    console.log(userID);
 
     //remove message prompting user to login
     loginMessage.textContent = "";
@@ -762,12 +764,4 @@ async function addUserDetails(userDetails) {
   } catch (err) {
     console.error("Error adding document: ", err);
   }
-}
-
-async function getLoggedInUserID() {
-  const auth = getAuth(app);
-  const user = auth.currentUser;
-  console.log(user);
-  const id = doc(db, "users", user.uid);
-  return id;
 }
