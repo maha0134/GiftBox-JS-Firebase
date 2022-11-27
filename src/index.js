@@ -290,10 +290,12 @@ async function savePerson() {
   let month = document.getElementById("month").value;
   let day = document.getElementById("day").value;
   if (!name || !month || !day) return; //form needs more info
+  const userRef = await getUser();
   const person = {
     name,
     "birth-month": month,
     "birth-day": day,
+    owner: userRef,
   };
   try {
     let docRef;
@@ -564,9 +566,10 @@ async function boughtCheckbox(ev) {
   }
 }
 
-function addOnSnapShotPeople(userID) {
+async function addOnSnapShotPeople() {
   let firstCall = true;
-  const userRef = doc(db, "users", userID);
+  // const userRef = doc(db, "users", userID);
+  const userRef = await getUser();
   const snapshotQuery = query(
     collection(db, "people"),
     where("owner", "==", userRef)
@@ -665,7 +668,7 @@ function attemptLogin() {
           addUserDetails(result.user);
           const token = credential.accessToken;
           sessionStorage.setItem("token", token);
-          logIn(true, result.user.uid);
+          logIn(true);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -707,7 +710,7 @@ function validateWithToken(token) {
   signInWithCredential(auth, credential)
     .then((result) => {
       console.log("authenticated with signInWithCredential");
-      logIn(true, result.user.uid);
+      logIn(true);
     })
     .catch((err) => {
       logout();
@@ -715,7 +718,7 @@ function validateWithToken(token) {
     });
 }
 
-function logIn(status, userID) {
+function logIn(status) {
   const loginMessage = document.querySelector(".login-message");
   if (status) {
     //if user is logged in
@@ -725,8 +728,7 @@ function logIn(status, userID) {
     document.getElementById("authLogout").classList.add("visible");
 
     //build lists
-    addOnSnapShotPeople(userID);
-    console.log(userID);
+    addOnSnapShotPeople();
 
     //remove message prompting user to login
     loginMessage.textContent = "";
@@ -764,4 +766,9 @@ async function addUserDetails(userDetails) {
   } catch (err) {
     console.error("Error adding document: ", err);
   }
+}
+
+async function getUser() {
+  const ref = doc(db, "users", auth.currentUser.uid);
+  return ref; //if you need the user reference
 }
