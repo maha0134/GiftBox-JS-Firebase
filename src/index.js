@@ -569,14 +569,12 @@ async function boughtCheckbox(ev) {
 
 async function addOnSnapShotPeople() {
   let firstCall = true;
-  // const userRef = doc(db, "users", userID);
   const userRef = await getUser();
   const snapshotQuery = query(
     collection(db, "people"),
     where("owner", "==", userRef)
   );
   const unsubscribe = onSnapshot(
-    // collection(db, "people"),
     snapshotQuery,
     (snapshot) => {
       if (firstCall) {
