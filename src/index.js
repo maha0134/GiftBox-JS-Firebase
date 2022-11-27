@@ -198,19 +198,20 @@ async function getPeople(querySnapshot) {
   }
 }
 
-function buildPeople(people) {
+async function buildPeople(people) {
   //build the HTML
   let ul = document.querySelector("ul.person-list");
   let index = 0;
   //replace the old ul contents with the new
   ul.innerHTML = "";
+  const ownerID = await getUser(true);
   ul.innerHTML = people
     .map((person) => {
       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
       if (index == 0) {
         index += 1;
         selectedPersonId = person.id;
-        return `<li data-id="${person.id}" class="person active">
+        return `<li data-id="${person.id}" data-owner=${ownerID.id} class="person active">
                 <span class="content"><p class="name">${person.name}</p>
                 <p class="dob">${dob}</p></span>
                 <span class="icons">
@@ -218,7 +219,7 @@ function buildPeople(people) {
                 <i class="material-icons-outlined" id="btnDelete">delete</i></span>
               </li>`;
       }
-      return `<li data-id="${person.id}" class="person">
+      return `<li data-id="${person.id}" data-owner=${ownerID.id} class="person">
                 <span class="content"><p class="name">${person.name}</p>
                 <p class="dob">${dob}</p></span>
                 <span class="icons">
@@ -768,7 +769,11 @@ async function addUserDetails(userDetails) {
   }
 }
 
-async function getUser() {
+async function getUser(id = false) {
   const ref = doc(db, "users", auth.currentUser.uid);
-  return ref; //if you need the user reference
+  if (id) {
+    const owner = await getDoc(ref);
+    return owner;
+  }
+  return ref;
 }
