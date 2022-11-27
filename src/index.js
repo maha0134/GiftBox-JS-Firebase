@@ -564,10 +564,15 @@ async function boughtCheckbox(ev) {
   }
 }
 
-function addOnSnapShotPeople() {
+function addOnSnapShotPeople(userID) {
   let firstCall = true;
-  const unsubscribe = onSnapshot(
+  const snapshotQuery = query(
     collection(db, "people"),
+    where("owner", "==", userID)
+  );
+  const unsubscribe = onSnapshot(
+    // collection(db, "people"),
+    snapshotQuery,
     (snapshot) => {
       if (firstCall) {
         getPeople(snapshot);
@@ -656,10 +661,10 @@ function attemptLogin() {
       signInWithPopup(auth, provider)
         .then((result) => {
           const credential = GithubAuthProvider.credentialFromResult(result);
+          addUserDetails(result.user);
           const token = credential.accessToken;
           sessionStorage.setItem("token", token);
-          logIn(true);
-          // const user = result.user;
+          logIn(true, result.user.uid);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -709,7 +714,7 @@ function validateWithToken(token) {
     });
 }
 
-function logIn(status) {
+function logIn(status, userID) {
   const loginMessage = document.querySelector(".login-message");
   if (status) {
     //if user is logged in
@@ -719,7 +724,7 @@ function logIn(status) {
     document.getElementById("authLogout").classList.add("visible");
 
     //build lists
-    addOnSnapShotPeople();
+    addOnSnapShotPeople(userID);
 
     //remove message prompting user to login
     loginMessage.textContent = "";
@@ -742,4 +747,27 @@ function logIn(status) {
     loginMessage.textContent = "Please login to see your gifts.";
     loginMessage.classList.add("visible");
   }
+}
+
+async function addUserDetails(userDetails) {
+  try {
+    const userRef = collection(db, "users");
+    await setDoc(
+      doc(userRef, userDetails.uid),
+      {
+        displayName: userDetails.displayName,
+      },
+      { merge: true }
+    );
+  } catch (err) {
+    console.error("Error adding document: ", err);
+  }
+}
+
+async function getLoggedInUserID() {
+  const auth = getAuth(app);
+  const user = auth.currentUser;
+  console.log(user);
+  const id = doc(db, "users", user.uid);
+  return id;
 }
