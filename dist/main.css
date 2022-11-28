@@ -24,29 +24,32 @@ body {
 }
 header,
 main {
-  padding: 1rem 4rem;
+  padding: 1rem;
 }
 header {
   background-color: var(--color-banner);
   border-bottom: 0.1rem solid var(--color-primary-text);
   box-shadow: 0 0 7px;
+  text-align: center;
   display: flex;
+  gap: 0.75rem;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
 }
 header h1 {
-  font-size: 4rem;
+  font-size: 2rem;
   font-weight: 500;
   color: var(--color-text-dark);
 }
 header h2 {
-  font-size: 2.5rem;
+  font-size: 1.35rem;
   font-weight: 300;
   color: var(--color-banner-text);
 }
 header button {
   display: flex;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   padding: 0.35em 0.95em;
   border-radius: 3rem;
   background-color: var(--color-icons);
@@ -108,15 +111,19 @@ section p.empty {
   color: var(--color-primary-text);
 }
 section h2 {
-  font-size: 2rem;
+  font-size: 1.35rem;
   color: var(--color-primary-text);
   display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 1rem;
   padding: 1rem;
   margin-bottom: 1rem;
+  align-items: center;
   justify-content: space-between;
 }
 section h2 > button {
-  padding: 0.5rem 1.5rem;
+  padding: 0.25em 0.75em;
   border: 1px solid var(--color-primary-text);
   background-color: #fff;
   color: var(--color-primary-text);
@@ -168,6 +175,9 @@ ul {
 .idea i {
   font-size: 40px;
   color: var(--color-icons);
+}
+.icons {
+  display: flex;
 }
 .idea-list li.idea {
   box-shadow: 0 0 5px;
@@ -256,7 +266,7 @@ dialog.active {
   gap: 1rem;
   margin: auto;
   width: 80vw;
-  height: 45vh;
+  /* height: 45vh; */
 }
 
 dialog.active div {
@@ -264,7 +274,7 @@ dialog.active div {
 }
 dialog#dlgDelete.active {
   width: 50vw;
-  height: 40vh;
+  /* height: 40vh; */
 }
 dialog#dlgDelete.active p {
   margin: 1.5rem;
@@ -278,12 +288,14 @@ dialog.active h2 {
 }
 dialog.active div {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  gap: 0.5rem;
+  /* justify-content: flex-start;
+  align-items: flex-start; */
+  flex-direction: column;
 }
 
 dialog.active label {
-  flex-basis: 20ch;
+  /* flex-basis: 20ch; */
   font-size: 1rem;
   font-family: inherit;
   font-weight: inherit;
@@ -325,4 +337,39 @@ dialog button:focus-visible {
   color: white;
   background-color: var(--color-icons);
   border-radius: 1rem;
+}
+
+@media only screen and (min-width: 45em) {
+  header h1 {
+    font-size: 4rem;
+    font-weight: 500;
+    color: var(--color-text-dark);
+  }
+  header h2 {
+    font-size: 2.5rem;
+  }
+  header,
+  main {
+    padding: 1rem 4rem;
+  }
+  header button {
+    font-size: 1.5rem;
+  }
+  header {
+    flex-direction: row;
+    text-align: inherit;
+  }
+  section h2 {
+    flex-direction: row;
+    text-align: inherit;
+  }
+
+  dialog.active div {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  dialog.active label {
+    flex-basis: 20ch;
+  }
 }
