@@ -6,7 +6,8 @@
   --radii: 0.25rem;
   --color-accent: rgb(37, 243, 219);
   --color-banner-text: rgb(0, 0, 0);
-  --color-accent-dark: rgb(11, 123, 110);
+  /* --color-accent-dark: rgb(11, 123, 110); */
+  --color-accent-dark: rgb(1, 80, 123);
   --color-icons: rgb(0, 98, 255);
 }
 * {
@@ -116,7 +117,6 @@ section h2 {
   flex-direction: column;
   text-align: center;
   gap: 1rem;
-  padding: 1rem;
   margin-bottom: 1rem;
   align-items: center;
   justify-content: space-between;
@@ -153,12 +153,12 @@ ul {
 
 .person-list p.name {
   font-size: 1.2rem;
-  line-height: 2rem;
+  line-height: 1.5rem;
   color: #222;
 }
 .person-list p.dob {
   font-size: 0.8rem;
-  line-height: 1rem;
+  line-height: 1.5rem;
   font-weight: 100;
   color: #222;
 }
@@ -186,7 +186,9 @@ ul {
   padding: 0 0.5rem;
   align-items: center;
   /*usenamedgridareas*/
-  grid-template-areas: "tab top iconEdit iconDelete" "tab bottom iconEdit iconDelete";
+  grid-template-areas:
+    "tab top iconEdit iconEdit"
+    "tab bottom iconDelete iconDelete";
   grid-template-columns: 1.1fr 4fr 0.8fr 0.7fr;
   background-color: var(--color-accent);
   -webkit-border-radius: var(--radii);
@@ -222,7 +224,6 @@ ul {
 }
 .idea-list p.location {
   font-size: 1rem;
-  line-height: 1rem;
   padding: 0.5rem;
   font-weight: 100;
   color: #000;
@@ -264,17 +265,14 @@ dialog.active {
   flex-direction: column;
   gap: 1rem;
   margin: auto;
-  width: 80vw;
+  width: 90vw;
   /* height: 45vh; */
 }
 
 dialog.active div {
   padding: 0 2rem;
 }
-dialog#dlgDelete.active {
-  /* width: 50vw; */
-  /* height: 40vh; */
-}
+
 dialog#dlgDelete.active p {
   margin: 1.5rem;
   font-size: 1.3rem;
@@ -369,6 +367,10 @@ dialog button:focus-visible {
   section h2 {
     flex-direction: row;
     text-align: inherit;
+    padding: 1rem;
+  }
+  dialog.active {
+    width: 50vw;
   }
 
   dialog.active div {
@@ -381,5 +383,11 @@ dialog button:focus-visible {
   }
   dialog.active .buttons {
     flex-direction: row;
+  }
+  .idea-list li.idea {
+    /*usenamedgridareas*/
+    grid-template-areas:
+      "tab top iconEdit iconDelete"
+      "tab bottom iconEdit iconDelete";
   }
 }
