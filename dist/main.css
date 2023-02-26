@@ -42,6 +42,7 @@ header h1 {
   font-size: 2rem;
   font-weight: 500;
   color: var(--color-text-dark);
+  /* text-shadow: 2px 2px 2px var(--color-primary-text); */
 }
 header h2 {
   font-size: 1.35rem;
@@ -77,18 +78,8 @@ main {
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
-  flex-wrap: wrap;
   margin: 1rem auto 0;
-  width: min(100%, 60em);
-}
-.login-message.visible {
-  background-color: var(--color-accent);
-  /* position: absolute; */
-  width: 100%;
-  text-align: center;
-  font-size: 1.25rem;
-  padding: 1rem;
-  margin-bottom: 2rem;
+  width: min(100%, 80em);
 }
 main > section {
   flex: 0.8 0.8 50%;
@@ -136,7 +127,7 @@ section h2 > button {
   -o-border-radius: var(--radii);
 }
 section h2 > button:hover,
-section h2 > button:focus-visible {
+section h2 > button:focus {
   background-color: var(--color-accent-dark);
   color: whitesmoke;
 }
@@ -261,9 +252,7 @@ dialog {
   display: none;
 }
 dialog.active {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: block;
   margin: auto;
   width: 90vw;
   /* height: 45vh; */
@@ -274,16 +263,16 @@ dialog.active div {
 }
 
 dialog#dlgDelete.active p {
-  margin: 1.5rem;
+  margin: 2rem 5rem;
   font-size: 1.3rem;
 }
 dialog.active h2 {
   background-color: var(--color-accent-dark);
   color: #fff;
-  padding: 1rem 2rem;
+  padding: 1rem 3rem;
   font-size: 2rem;
 }
-dialog.active div {
+dialog.active p {
   display: flex;
   gap: 0.5rem;
   /* justify-content: flex-start;
@@ -321,26 +310,28 @@ dialog.active .buttons {
 }
 
 dialog button:hover,
-dialog button:focus-visible {
+dialog button:focus {
   background-color: var(--color-accent-dark);
   color: whitesmoke;
 }
 :is(dialog, h2) button:active {
   background-color: var(--color-banner);
 }
-.confirm {
-  transition: 0.25s linear;
-}
+
 .confirm.onscreen {
-  margin-top: 1.5rem;
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
   display: flex;
   justify-content: center;
+  align-items: center;
+  background-color: hsla(0, 0%, 7%, 0.9);
 }
 .confirm.onscreen p {
   font-size: 1.5rem;
-  padding: 1.5rem 5rem;
-  color: white;
-  background-color: var(--color-icons);
+  padding: 5rem;
+  background-color: whitesmoke;
   border-radius: 1rem;
 }
 
