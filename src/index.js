@@ -172,19 +172,20 @@ async function getPeople(querySnapshot) {
   }
 }
 
-function buildPeople(people) {
+async function buildPeople(people) {
   //build the HTML
   let ul = document.querySelector("ul.person-list");
   let index = 0;
   //replace the old ul contents with the new
   ul.innerHTML = "";
+  const ownerID = await getUser(true);
   ul.innerHTML = people
     .map((person) => {
       const dob = `${months[person["birth-month"] - 1]} ${person["birth-day"]}`;
       if (index == 0) {
         index += 1;
         selectedPersonId = person.id;
-        return `<li data-id="${person.id}" class="person active">
+        return `<li data-id="${person.id}" data-owner=${ownerID.id} class="person active">
                 <span class="content"><p class="name">${person.name}</p>
                 <p class="dob">${dob}</p></span>
                 <span class="icons">
@@ -192,7 +193,7 @@ function buildPeople(people) {
                 <i class="material-icons-outlined" id="btnDelete">delete</i></span>
               </li>`;
       }
-      return `<li data-id="${person.id}" class="person">
+      return `<li data-id="${person.id}" data-owner=${ownerID.id} class="person">
                 <span class="content"><p class="name">${person.name}</p>
                 <p class="dob">${dob}</p></span>
                 <span class="icons">
@@ -271,10 +272,12 @@ async function savePerson() {
   let month = document.getElementById("month").value;
   let day = document.getElementById("day").value;
   if (!name || !month || !day) return; //form needs more info
+  const userRef = await getUser();
   const person = {
     name,
     "birth-month": month,
     "birth-day": day,
+    owner: userRef,
   };
   try {
     let docRef;
@@ -568,10 +571,15 @@ async function boughtCheckbox(ev) {
   }
 }
 
-function addOnSnapShotPeople() {
+async function addOnSnapShotPeople() {
   let firstCall = true;
-  const unsubscribe = onSnapshot(
+  const userRef = await getUser();
+  const snapshotQuery = query(
     collection(db, "people"),
+    where("owner", "==", userRef)
+  );
+  const unsubscribe = onSnapshot(
+    snapshotQuery,
     (snapshot) => {
       if (firstCall) {
         getPeople(snapshot);
@@ -652,4 +660,122 @@ function addOnSnapShotGifts(personId) {
       console.log("error listening to changes, please reload the page", error);
     }
   );
+}
+
+function attemptLogin() {
+  setPersistence(auth, browserSessionPersistence)
+    .then(() => {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const credential = GithubAuthProvider.credentialFromResult(result);
+          addUserDetails(result.user);
+          const token = credential.accessToken;
+          sessionStorage.setItem("token", token);
+          logIn(true);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          const credential = GithubAuthProvider.credentialFromError(error);
+          console.log(errorCode, errorMessage, credential);
+        });
+    })
+    .catch((err) =>
+      console.log(
+        "failed to set Persistence to Session storage:",
+        err.code,
+        err.message
+      )
+    );
+}
+
+function logout() {
+  signOut(auth)
+    .then(() => {
+      logIn(false);
+    })
+    .catch((error) => {
+      console.log("error signing out" + error);
+    });
+}
+
+onAuthStateChanged(auth, (user) => {
+  const token = sessionStorage.getItem("token");
+  if (user && token) {
+    validateWithToken(token);
+  } else if (!user) {
+    logout();
+  }
+});
+
+function validateWithToken(token) {
+  const credential = GithubAuthProvider.credential(token);
+  signInWithCredential(auth, credential)
+    .then((result) => {
+      console.log("authenticated with signInWithCredential");
+      logIn(true);
+    })
+    .catch((err) => {
+      logout();
+      console.log(err);
+    });
+}
+
+function logIn(status) {
+  const loginMessage = document.querySelector(".login-message");
+  if (status) {
+    //if user is logged in
+    loggedIn = true;
+    //toggle button
+    document.getElementById("authLogin").classList.remove("visible");
+    document.getElementById("authLogout").classList.add("visible");
+
+    //build lists
+    addOnSnapShotPeople();
+
+    //remove message prompting user to login
+    loginMessage.textContent = "";
+    loginMessage.classList.remove("visible");
+  } else {
+    //if user is logged out
+    loggedIn = false;
+    //toggle button
+    document.getElementById("authLogin").classList.add("visible");
+    document.getElementById("authLogout").classList.remove("visible");
+
+    //clear people as well as gifts
+    document.querySelector(".person-list").replaceChildren();
+    document.querySelector(".idea-list").replaceChildren();
+
+    //clear session storage
+    sessionStorage.clear();
+
+    //add prompt message on screen asking user to login
+    loginMessage.textContent = "Please login to see your gifts.";
+    loginMessage.classList.add("visible");
+  }
+}
+
+async function addUserDetails(userDetails) {
+  try {
+    const userRef = collection(db, "users");
+    await setDoc(
+      doc(userRef, userDetails.uid),
+      {
+        displayName: userDetails.displayName,
+      },
+      { merge: true }
+    );
+  } catch (err) {
+    console.error("Error adding document: ", err);
+  }
+}
+
+async function getUser(id = false) {
+  const ref = doc(db, "users", auth.currentUser.uid);
+  if (id) {
+    const owner = await getDoc(ref);
+    return owner;
+  }
+  return ref;
 }

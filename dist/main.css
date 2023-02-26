@@ -6,7 +6,8 @@
   --radii: 0.25rem;
   --color-accent: rgb(37, 243, 219);
   --color-banner-text: rgb(0, 0, 0);
-  --color-accent-dark: rgb(11, 123, 110);
+  /* --color-accent-dark: rgb(11, 123, 110); */
+  --color-accent-dark: rgb(1, 80, 123);
   --color-icons: rgb(0, 98, 255);
 }
 * {
@@ -24,23 +25,53 @@ body {
 }
 header,
 main {
-  padding: 1rem 4rem;
+  padding: 1rem;
 }
 header {
   background-color: var(--color-banner);
   border-bottom: 0.1rem solid var(--color-primary-text);
   box-shadow: 0 0 7px;
+  text-align: center;
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 header h1 {
-  font-size: 4rem;
+  font-size: 2rem;
   font-weight: 500;
   color: var(--color-text-dark);
   /* text-shadow: 2px 2px 2px var(--color-primary-text); */
 }
 header h2 {
-  font-size: 2.5rem;
+  font-size: 1.35rem;
   font-weight: 300;
   color: var(--color-banner-text);
+}
+header button {
+  display: flex;
+  font-size: 1.25rem;
+  padding: 0.35em 0.95em;
+  border-radius: 3rem;
+  background-color: var(--color-icons);
+  box-shadow: inset 0 0 4px black;
+  border: none;
+  color: white;
+  transition: 0.25s linear;
+  cursor: pointer;
+  transform: translate(-100rem, -100rem);
+  display: none;
+}
+
+button.visible {
+  transform: translate(0);
+  display: inline-block;
+}
+
+header button:hover,
+header button:focus-visible {
+  background-color: var(--color-accent-dark);
 }
 main {
   display: flex;
@@ -51,10 +82,9 @@ main {
   width: min(100%, 80em);
 }
 main > section {
-  flex-basis: 50%;
-  flex-grow: 1;
-  flex-shrink: 1;
+  flex: 0.8 0.8 50%;
   display: flex;
+  margin: 0 auto;
   flex-direction: column;
   min-height: 100vh;
   padding: 1rem;
@@ -72,15 +102,18 @@ section p.empty {
   color: var(--color-primary-text);
 }
 section h2 {
-  font-size: 2rem;
+  font-size: 1.35rem;
   color: var(--color-primary-text);
   display: flex;
-  padding: 1rem;
+  flex-direction: column;
+  text-align: center;
+  gap: 1rem;
   margin-bottom: 1rem;
+  align-items: center;
   justify-content: space-between;
 }
 section h2 > button {
-  padding: 0.5rem 1.5rem;
+  padding: 0.25em 0.75em;
   border: 1px solid var(--color-primary-text);
   background-color: #fff;
   color: var(--color-primary-text);
@@ -111,12 +144,12 @@ ul {
 
 .person-list p.name {
   font-size: 1.2rem;
-  line-height: 2rem;
+  line-height: 1.5rem;
   color: #222;
 }
 .person-list p.dob {
   font-size: 0.8rem;
-  line-height: 1rem;
+  line-height: 1.5rem;
   font-weight: 100;
   color: #222;
 }
@@ -133,6 +166,9 @@ ul {
   font-size: 40px;
   color: var(--color-icons);
 }
+.icons {
+  display: flex;
+}
 .idea-list li.idea {
   box-shadow: 0 0 5px;
   border-radius: var(--radii);
@@ -141,7 +177,9 @@ ul {
   padding: 0 0.5rem;
   align-items: center;
   /*usenamedgridareas*/
-  grid-template-areas: "tab top iconEdit iconDelete" "tab bottom iconEdit iconDelete";
+  grid-template-areas:
+    "tab top iconEdit iconEdit"
+    "tab bottom iconDelete iconDelete";
   grid-template-columns: 1.1fr 4fr 0.8fr 0.7fr;
   background-color: var(--color-accent);
   -webkit-border-radius: var(--radii);
@@ -177,7 +215,6 @@ ul {
 }
 .idea-list p.location {
   font-size: 1rem;
-  line-height: 1rem;
   padding: 0.5rem;
   font-weight: 100;
   color: #000;
@@ -217,13 +254,14 @@ dialog {
 dialog.active {
   display: block;
   margin: auto;
-  width: 80vw;
-  height: 60vh;
+  width: 90vw;
+  /* height: 45vh; */
 }
-dialog#dlgDelete.active {
-  width: 50vw;
-  height: 30vh;
+
+dialog.active div {
+  padding: 0 2rem;
 }
+
 dialog#dlgDelete.active p {
   margin: 2rem 5rem;
   font-size: 1.3rem;
@@ -236,13 +274,14 @@ dialog.active h2 {
 }
 dialog.active p {
   display: flex;
-  margin: 1rem 3rem;
-  justify-content: flex-start;
-  align-items: flex-start;
+  gap: 0.5rem;
+  /* justify-content: flex-start;
+  align-items: flex-start; */
+  flex-direction: column;
 }
 
 dialog.active label {
-  flex-basis: 20ch;
+  /* flex-basis: 20ch; */
   font-size: 1rem;
   font-family: inherit;
   font-weight: inherit;
@@ -253,8 +292,8 @@ dialog.active :is(input, button) {
   font-weight: inherit;
 }
 dialog button {
-  margin: 0 2rem;
-  padding: 0.5rem 2rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5em 1em;
   border: 1px solid var(--color-primary-text);
   background-color: #fff;
   color: var(--color-primary-text);
@@ -262,6 +301,14 @@ dialog button {
   transition: 0.25s linear;
   cursor: pointer;
 }
+dialog.active .buttons {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  gap: 0.5rem;
+  flex-direction: row-reverse;
+}
+
 dialog button:hover,
 dialog button:focus {
   background-color: var(--color-accent-dark);
@@ -286,4 +333,52 @@ dialog button:focus {
   padding: 5rem;
   background-color: whitesmoke;
   border-radius: 1rem;
+}
+
+@media only screen and (min-width: 45em) {
+  header h1 {
+    font-size: 4rem;
+    font-weight: 500;
+    color: var(--color-text-dark);
+  }
+  header h2 {
+    font-size: 2.5rem;
+  }
+  header,
+  main {
+    padding: 1rem 3rem;
+  }
+  header button {
+    font-size: 1.5rem;
+  }
+  header {
+    flex-direction: row;
+    text-align: inherit;
+  }
+  section h2 {
+    flex-direction: row;
+    text-align: inherit;
+    padding: 1rem;
+  }
+  dialog.active {
+    width: 50vw;
+  }
+
+  dialog.active div {
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  dialog.active label {
+    flex-basis: 20ch;
+  }
+  dialog.active .buttons {
+    flex-direction: row;
+  }
+  .idea-list li.idea {
+    /*usenamedgridareas*/
+    grid-template-areas:
+      "tab top iconEdit iconDelete"
+      "tab bottom iconEdit iconDelete";
+  }
 }

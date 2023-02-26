@@ -37,6 +37,7 @@
             id="name"
             name="name"
             placeholder="person's name"
+            required
           />
         </p>
         <p>
@@ -48,16 +49,25 @@
             min="1"
             max="12"
             value="1"
+            required
           />
         </p>
         <p>
           <label for="day">Birth Day:</label>
-          <input type="number" id="day" name="day" min="1" max="31" value="1" />
-        </p>
-        <p>
-          <button id="btnCancelPerson">Cancel</button>
+          <input
+            type="number"
+            id="day"
+            name="day"
+            min="1"
+            max="31"
+            value="1"
+            required
+          />
+        </div>
+        <div class="buttons">
           <button id="btnSavePerson">Save</button>
-        </p>
+          <button id="btnCancelPerson">Cancel</button>
+        </div>
       </dialog>
       <dialog id="dlgIdea" class="">
         <h2>Add/Edit Gift Idea</h2>
@@ -68,6 +78,7 @@
             id="title"
             name="title"
             placeholder="describe the gift"
+            required
           />
         </p>
         <p>
@@ -77,17 +88,18 @@
             id="location"
             name="location"
             placeholder="store or website"
+            required
           />
-        </p>
-        <p>
-          <button id="btnCancelIdea">Cancel</button>
+        </div>
+        <div class="buttons">
           <button id="btnSaveIdea">Save</button>
-        </p>
+          <button id="btnCancelIdea">Cancel</button>
+        </div>
       </dialog>
       <dialog id="dlgDelete">
         <h2>Confirm Delete</h2>
         <p>Are you sure you want to delete this item?</p>
-        <p>
+        <div class="buttons">
           <button id="btnCancelDelete">Cancel</button>
           <button id="btnConfirmDelete">Delete</button>
         </p>
