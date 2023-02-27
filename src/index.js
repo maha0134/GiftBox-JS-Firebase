@@ -725,7 +725,7 @@ function logIn(status) {
     //toggle button
     document.getElementById("authLogin").classList.remove("visible");
     document.getElementById("authLogout").classList.add("visible");
-
+    document.body.className = "loggedIn";
     //build lists
     addOnSnapShotPeople();
 
@@ -744,11 +744,7 @@ function logIn(status) {
     document.querySelector(".idea-list").replaceChildren();
 
     //clear session storage
-    sessionStorage.clear();
-
-    //add prompt message on screen asking user to login
-    loginMessage.textContent = "Please login to see your gifts.";
-    loginMessage.classList.add("visible");
+    sessionStorage.clear(); 
   }
 }
 
