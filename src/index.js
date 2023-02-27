@@ -738,13 +738,14 @@ function logIn(status) {
     //toggle button
     document.getElementById("authLogin").classList.add("visible");
     document.getElementById("authLogout").classList.remove("visible");
+    document.body.className = "welcome";
 
     //clear people as well as gifts
     document.querySelector(".person-list").replaceChildren();
     document.querySelector(".idea-list").replaceChildren();
 
     //clear session storage
-    sessionStorage.clear(); 
+    sessionStorage.clear();
   }
 }
 

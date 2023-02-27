@@ -1,15 +1,15 @@
 :root {
   --color-primary-text: rgb(0, 0, 0);
-  --color-text-dark: rgb(21, 0, 255);
+  --color-text-dark: #3b1e08;
   --color-banner: rgb(0, 73, 135);
-  /* --very-color-banner: #d7fff8; */
   --radii: 0.25rem;
-  --color-accent: rgb(37, 243, 219);
   --color-banner-text: rgb(0, 0, 0);
   /* --color-accent-dark: rgb(11, 123, 110); */
   --color-accent-dark: rgb(1, 80, 123);
-  --color-icons: rgb(0, 98, 255);
   --color-sections-bg: rgba(184, 222, 226, 0.412);
+  --color-primary-dark: #a18167;
+  --color-primary-light: #dbc2ad;
+  --color-accent: #3c2113;
 }
 * {
   box-sizing: border-box;
@@ -23,25 +23,18 @@ html {
   /* "Lucida Sans", Arial, sans-serif; */
   font-family: "Montserrat", sans-serif;
 }
+body {
+  background-color: var(--color-primary-light);
+  overflow-x: hidden;
+}
+body.loggedIn {
+}
 body.welcome {
   min-height: 100vh;
-  background-color: #dbc2ad;
   display: grid;
   place-content: center;
 }
 
-header {
-  /* background-color: var(--color-banner); */
-  /* border-bottom: 0.1rem solid var(--color-primary-text); */
-  /* box-shadow: 0 0 7px; */
-  text-align: center;
-  /* display: flex; */
-  /* gap: 0.75rem; */
-  /* flex-direction: column;
-  justify-content: space-between;
-  align-items: center; */
-  color: #3b1e08;
-}
 .header-btn {
   background-color: #fff;
   width: 100%;
@@ -51,28 +44,26 @@ header {
 header h1 {
   font-size: 2rem;
   font-weight: 500;
-  /* color: var(--color-text-dark); */
   margin: 0;
+  text-align: center;
   /* padding: 1rem 0 2rem; */
   text-transform: uppercase;
 }
 header h2,
 .h2 {
-  margin-bottom: 2rem;
   font-size: 1.25rem;
   font-weight: lighter;
   font-family: "Dancing Script", cursive;
 }
-
-header i {
-  display: flex;
-  font-size: 0.85rem;
-  padding: 0.35em 0.95em;
+header .material-icons-outlined {
+  /* display: flex; */
+  /* font-size: 0.85rem; */
+  /* padding: 0.35em 0.95em; */
   border-radius: 3rem;
-  background-color: var(--color-icons);
-  box-shadow: inset 0 0 4px black;
-  border: none;
-  color: white;
+  /* background-color: var(--color-icons); */
+  /* box-shadow: inset 0 0 4px black; */
+  /* border: none; */
+  color: var(--color-text-dark);
   transition: 0.25s linear;
   cursor: pointer;
   transform: translate(-100rem, -100rem);
@@ -96,6 +87,23 @@ main.welcome button {
   /* transform: translate(-100rem, -100rem); */
 }
 
+header {
+  margin-bottom: 2rem;
+  padding: 1.5rem 0.5rem 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+body.welcome header {
+  justify-content: center;
+}
+
+header i.visible {
+  align-self: center;
+  transform: translate(0);
+  font-size: 40px;
+}
 header i.visible,
 button.visible {
   transform: translate(0);
@@ -126,15 +134,21 @@ main.welcome {
   margin: -1rem auto 1.5rem;
 } */
 
-.welcome-screen {
+body.welcome .welcome-screen {
   margin: 1rem;
   padding: 2rem 0.75rem;
-  background-color: #a18167;
+  background-color: var(--color-primary-dark);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   border-radius: 0.25rem;
   box-shadow: 0 0 5px;
+  transform: translateX(0);
+}
+
+body.loggedIn .welcome-screen {
+  transform: translateX(100vw);
+  display: none;
 }
 /* .welcome-screen-bg {
   background-color: rgb(2, 31, 31);
@@ -176,11 +190,11 @@ main > section {
 }
 section.ideas {
   box-shadow: 0 0 2px var(--color-banner);
-  background-color: var(--color-sections-bg);
+  background-color: var(--color-primary-dark);
   flex: 0.8 0.8 20rem;
 }
 section.people {
-  background-color: var(--color-sections-bg);
+  background-color: var(--color-primary-dark);
   flex: 0.8 0.8 20rem;
   box-shadow: 0 0 2px var(--color-banner);
 }
@@ -234,26 +248,35 @@ ul {
 .person-list p.name {
   font-size: 1.2rem;
   line-height: 1.5rem;
-  color: #222;
 }
 .person-list p.dob {
   font-size: 0.8rem;
   line-height: 1.5rem;
   font-weight: 100;
-  color: #222;
+  text-align: left;
 }
 .person.active {
   background-color: var(--color-accent);
+  color: var(--color-primary-light);
 }
 .person {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: var(--color-primary-light);
+  /* background-color: ; */
+  color: var(--color-text-dark);
 }
-.person i,
+.person i {
+  font-size: 40px;
+  color: var(--color-text-dark);
+}
 .idea i {
   font-size: 40px;
-  color: var(--color-icons);
+  color: var(--color-primary-light);
+}
+.person.active i {
+  color: var(--color-primary-light);
 }
 .icons {
   display: flex;
@@ -276,12 +299,16 @@ ul {
   -ms-border-radius: var(--radii);
   -o-border-radius: var(--radii);
 }
+.idea-list {
+  color: var(--color-primary-light);
+}
+
 .idea-list .idea label {
   font-size: 1rem;
   line-height: 1rem;
-  font-weight: 100;
+  font-weight: 300;
   padding: 0.5rem;
-  color: #000;
+  color: var(--color-primary-light);
   grid-area: tab;
   display: flex;
   flex-direction: column;
@@ -292,22 +319,18 @@ ul {
   color: #000;
 }
 .idea-list .idea [type="checkbox"] {
-  accent-color: var(--color-icons);
+  accent-color: var(--color-text-dark);
 }
 .idea-list p.title {
   font-size: 1.2rem;
   line-height: 2rem;
   padding: 0.5rem 0.5rem 0;
-  color: #000;
-  background-color: #fff;
   grid-area: top;
 }
 .idea-list p.location {
   font-size: 1rem;
   padding: 0.5rem;
   font-weight: 100;
-  color: #000;
-  background-color: #fff;
   grid-area: bottom;
 }
 .idea-list i:first-of-type {
@@ -433,9 +456,11 @@ dialog button:focus-visible {
     font-size: 1.15rem;
   }
   header h2,
+  body.loggedIn .h2 {
+    font-size: 1.75rem;
+  }
   .h2 {
     margin-bottom: 5rem;
-    font-size: 1.75rem;
   }
   .welcome-screen {
     font-size: 1.5rem;
