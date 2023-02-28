@@ -557,10 +557,12 @@ async function boughtCheckbox(ev) {
       await updateDoc(docRef, {
         bought: true,
       });
+      ev.target.closest(".idea").classList.add("bought");
     } else {
       await updateDoc(docRef, {
         bought: false,
       });
+      ev.target.closest(".idea").classList.remove("bought");
     }
   } catch (err) {
     console.log(err.message);
