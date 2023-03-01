@@ -730,10 +730,6 @@ function logIn(status) {
     document.body.className = "loggedIn";
     //build lists
     addOnSnapShotPeople();
-
-    //remove message prompting user to login
-    loginMessage.textContent = "";
-    loginMessage.classList.remove("visible");
   } else {
     //if user is logged out
     loggedIn = false;
