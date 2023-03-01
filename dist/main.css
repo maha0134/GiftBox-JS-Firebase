@@ -250,7 +250,8 @@ ul {
   line-height: 1.5rem;
   text-align: left;
 }
-.person.active {
+.person.active,
+.idea-list .idea.bought {
   background-color: var(--color-accent);
   color: var(--color-primary-light);
 }
@@ -260,20 +261,11 @@ ul {
   justify-content: space-between;
   background-color: var(--color-primary-light);
 }
-.person i {
-  font-size: 40px;
-}
+.person i,
 .idea i {
   font-size: 40px;
-  color: var(--color-primary-light);
 }
-.person.active i {
-  color: var(--color-primary-light);
-}
-.idea-list .idea.bought {
-  background-color: var(--color-text);
-  color: var(--color-primary-light);
-}
+
 .icons {
   display: flex;
 }
@@ -281,7 +273,7 @@ ul {
   box-shadow: 0 0 5px;
   margin: 1rem 0;
   display: grid;
-  padding: 0 0.5rem;
+  padding: 0.75rem 0.5rem;
   align-items: center;
   /*usenamedgridareas*/
   grid-template-areas:
@@ -295,7 +287,7 @@ ul {
   font-size: 1rem;
   line-height: 1rem;
   font-weight: 300;
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   grid-area: tab;
   display: flex;
   flex-direction: column;
@@ -309,12 +301,12 @@ ul {
 .idea-list p.title {
   font-size: 1.2rem;
   line-height: 2rem;
-  padding: 0.5rem 0.5rem 0;
+  /* padding: 0.5rem 0.5rem 0; */
   grid-area: top;
 }
 .idea-list p.location {
   font-size: 1rem;
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   font-weight: 100;
   grid-area: bottom;
 }

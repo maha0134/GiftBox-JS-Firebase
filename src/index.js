@@ -263,7 +263,7 @@ function buildIdeas(gifts) {
     ul.innerHTML = gifts
       .map((gift) => {
         if (gift.bought) {
-          return `<li class="idea" data-id = ${gift.id}><label for="chk-${gift.id}"><input type="checkbox" id="chk-${gift.id}" checked /> Bought</label>
+          return `<li class="idea bought" data-id = ${gift.id}><label for="chk-${gift.id}"><input type="checkbox" id="chk-${gift.id}" checked /> Bought</label>
         <p class="title">${gift.idea}</p>
         <p class="location">${gift.location}</p>
         <i class="material-icons-outlined"id="btnEditIdea">edit</i>
