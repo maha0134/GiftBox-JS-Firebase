@@ -244,7 +244,7 @@ function buildIdeas(gifts) {
     ul.innerHTML = gifts
       .map((gift) => {
         if (gift.bought) {
-          return `<li class="idea" data-id = ${gift.id}><label for="chk-${gift.id}"><input type="checkbox" id="chk-${gift.id}" checked /> Bought</label>
+          return `<li class="idea bought" data-id = ${gift.id}><label for="chk-${gift.id}"><input type="checkbox" id="chk-${gift.id}" checked /> Bought</label>
         <p class="title">${gift.idea}</p>
         <p class="location">${gift.location}</p>
         <i class="material-icons-outlined"id="btnEditIdea">edit</i>
@@ -561,10 +561,12 @@ async function boughtCheckbox(ev) {
       await updateDoc(docRef, {
         bought: true,
       });
+      ev.target.closest(".idea").classList.add("bought");
     } else {
       await updateDoc(docRef, {
         bought: false,
       });
+      ev.target.closest(".idea").classList.remove("bought");
     }
   } catch (err) {
     console.log(err.message);
@@ -729,7 +731,7 @@ function logIn(status) {
     //toggle button
     document.getElementById("authLogin").classList.remove("visible");
     document.getElementById("authLogout").classList.add("visible");
-
+    document.body.className = "loggedIn";
     //build lists
     addOnSnapShotPeople();
 
@@ -742,6 +744,7 @@ function logIn(status) {
     //toggle button
     document.getElementById("authLogin").classList.add("visible");
     document.getElementById("authLogout").classList.remove("visible");
+    document.body.className = "welcome";
 
     //clear people as well as gifts
     document.querySelector(".person-list").replaceChildren();
@@ -749,10 +752,6 @@ function logIn(status) {
 
     //clear session storage
     sessionStorage.clear();
-
-    //add prompt message on screen asking user to login
-    loginMessage.textContent = "Please login to see your gifts.";
-    loginMessage.classList.add("visible");
   }
 }
 
