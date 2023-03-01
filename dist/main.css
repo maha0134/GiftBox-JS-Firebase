@@ -228,12 +228,14 @@ ul {
 
 .icons {
   display: flex;
+  gap: 0.75rem;
 }
 .idea-list li.idea {
   box-shadow: 0 0 5px;
   margin: 1rem 0;
   display: grid;
   padding: 0.75rem 0.5rem;
+  text-align: center;
   align-items: center;
   /*usenamedgridareas*/
   grid-template-areas:
@@ -253,7 +255,7 @@ ul {
 }
 
 .idea-list .idea [type="checkbox"] {
-  accent-color: var(--color-primary-dark);
+  accent-color: var(--color-primary-light);
 }
 .idea-list p.title {
   line-height: 1.5rem;

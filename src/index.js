@@ -312,17 +312,14 @@ async function savePerson() {
       tellUser(`<p>Person "${name}" added to database.</p>`);
       person.id = docRef.id;
     }
-    //1. clear the form fields
+    //clear the form fields
     document.getElementById("name").value = "";
     document.getElementById("month").value = "";
     document.getElementById("day").value = "";
-    //2. hide the dialog and the overlay
     hideOverlay();
     showPerson(person);
   } catch (err) {
     console.error("Error adding document: ", err);
-    //do you want to stay on the dialog?
-    //display a mesage to the user about the problem
   }
 }
 
