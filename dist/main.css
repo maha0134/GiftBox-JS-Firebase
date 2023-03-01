@@ -244,11 +244,11 @@ ul {
 
 .person-list p.name {
   line-height: 1.5rem;
+  font-weight: 400;
 }
 .person-list p.dob {
-  font-weight: 200;
+  font-weight: 300;
   line-height: 1.5rem;
-  text-align: left;
 }
 .person.active,
 .idea-list .idea.bought {
@@ -284,10 +284,7 @@ ul {
 }
 
 .idea-list .idea label {
-  font-size: 1rem;
-  line-height: 1rem;
-  font-weight: 300;
-  /* padding: 0.5rem; */
+  line-height: 1.5rem;
   grid-area: tab;
   display: flex;
   flex-direction: column;
@@ -299,16 +296,14 @@ ul {
   accent-color: var(--color-primary-dark);
 }
 .idea-list p.title {
-  font-size: 1.2rem;
-  line-height: 2rem;
-  /* padding: 0.5rem 0.5rem 0; */
+  line-height: 1.5rem;
+  font-weight: 400;
   grid-area: top;
 }
 .idea-list p.location {
-  font-size: 1rem;
-  /* padding: 0.5rem; */
-  font-weight: 100;
+  font-weight: 300;
   grid-area: bottom;
+  line-height: 1.5rem;
 }
 .idea-list i:first-of-type {
   justify-self: center;
