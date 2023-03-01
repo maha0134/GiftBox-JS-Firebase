@@ -1,12 +1,6 @@
 :root {
-  --color-primary-text: rgb(0, 0, 0);
   --color-text: #3b1e08;
-  --color-banner: rgb(0, 73, 135);
   --radii: 0.25rem;
-  --color-banner-text: rgb(0, 0, 0);
-  /* --color-accent-dark: rgb(11, 123, 110); */
-  --color-accent-dark: rgb(1, 80, 123);
-  --color-sections-bg: rgba(184, 222, 226, 0.412);
   --color-primary-dark: #a18167;
   --color-primary-light: #dbc2ad;
   --color-accent: #3c2113;
@@ -55,7 +49,7 @@ header i.material-icons-outlined {
   display: none;
 }
 main button,
-dialog button {
+dialog.active button {
   font-size: 1rem;
   padding: 0.75em 1.5em;
   border-radius: 3rem;
@@ -64,6 +58,9 @@ dialog button {
   border: none;
   color: var(--color-primary-light);
   transition: 0.25s linear;
+  cursor: pointer;
+}
+dialog.active span {
   cursor: pointer;
 }
 main button:hover,
@@ -78,18 +75,12 @@ body.welcome main button {
   margin: 0 auto;
 }
 
-dialog button {
+dialog.active button {
   padding: 0.5em 2em;
 }
 
-dialog button:last-of-type {
-  background-color: #fff;
-  color: var(--color-text);
-  box-shadow: none;
-  padding: 0;
-}
-dialog button:first-of-type:hover,
-dialog button:first-of-type:focus-visible {
+dialog.active button:hover,
+dialog.active button:focus-visible {
   background-color: var(--color-primary-light);
   color: var(--color-text);
 }
@@ -120,24 +111,13 @@ button.visible {
   display: inline-block;
 }
 
-main.welcome {
+main {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
   margin: 1rem auto 0;
-  width: min(100%, 80em);
-}
-main > section {
-  flex: 0.8 0.8 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 0 auto;
   width: min(100%, 60em);
-  text-align: center;
-  min-height: calc(100vh-6.38rem);
 }
 
 body.welcome .welcome-screen {
@@ -179,11 +159,6 @@ main .sections {
   display: flex;
 }
 
-main > section {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-}
 .github-icon {
   display: flex;
   width: 1.5rem;
@@ -214,31 +189,6 @@ section p.empty {
   padding: 1rem;
   font-size: 1.2rem;
   color: var(--color-text);
-}
-section h2 {
-  font-size: 1.35rem;
-  color: var(--color-primary-text);
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  align-items: center;
-  justify-content: space-between;
-}
-section h2 > button {
-  padding: 0.25em 0.75em;
-  border: 1px solid var(--color-primary-text);
-  background-color: #fff;
-  color: var(--color-primary-text);
-  font-size: 1.2rem;
-  transition: 0.25s linear;
-  border-radius: var(--radii);
-  cursor: pointer;
-  -webkit-border-radius: var(--radii);
-  -moz-border-radius: var(--radii);
-  -ms-border-radius: var(--radii);
-  -o-border-radius: var(--radii);
 }
 
 ul {
@@ -346,7 +296,9 @@ dialog {
   display: none;
 }
 dialog.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   margin: auto;
   width: 90vw;
   box-shadow: 0 0 5px;
@@ -358,16 +310,17 @@ dialog.active div {
 }
 
 dialog#dlgDelete.active p {
-  margin: 2rem 5rem;
+  margin: 2rem 2rem;
   font-size: 1.3rem;
 }
 dialog.active h2 {
-  background-color: var(--color-accent);
+  background-color: var(--color-text);
   color: var(--color-primary-light);
   padding: 1rem 2rem;
   font-size: 2rem;
 }
-dialog.active p {
+dialog.active p,
+dialog.active div {
   display: flex;
   gap: 0.5rem;
   flex-direction: column;
@@ -378,7 +331,7 @@ dialog.active label {
   font-family: inherit;
   font-weight: inherit;
 }
-dialog.active :is(input, button) {
+dialog.active :is(input, button, span) {
   font-size: 1rem;
   font-family: inherit;
   font-weight: inherit;
@@ -392,9 +345,6 @@ dialog.active .buttons {
   flex-direction: row-reverse;
 }
 
-:is(dialog, h2) button:active {
-  background-color: var(--color-banner);
-}
 .confirm {
   transition: 0.25s linear;
 }
@@ -417,11 +367,15 @@ dialog.active .buttons {
 }
 
 @media only screen and (min-width: 45em) {
+  header {
+    justify-content: center;
+    position: relative;
+  }
   header i.visible {
     font-size: 56px;
     font-weight: bold;
     position: absolute;
-    right: 1.5rem;
+    right: 0;
     top: 3rem;
   }
   header i.visible:hover,
@@ -454,9 +408,6 @@ dialog.active .buttons {
   body.loggedIn .header-content {
     flex: 1;
     text-align: center;
-  }
-  header {
-    justify-content: center;
   }
 
   body.welcome .welcome-screen {

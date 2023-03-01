@@ -720,7 +720,6 @@ function validateWithToken(token) {
 }
 
 function logIn(status) {
-  const loginMessage = document.querySelector(".login-message");
   if (status) {
     //if user is logged in
     loggedIn = true;
